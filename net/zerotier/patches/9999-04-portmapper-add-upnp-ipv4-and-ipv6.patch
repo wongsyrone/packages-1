@@ -1,6 +1,6 @@
 --- a/osdep/PortMapper.cpp
 +++ b/osdep/PortMapper.cpp
-@@ -46,9 +46,11 @@
+@@ -40,9 +40,11 @@
  #ifdef ZT_USE_SYSTEM_MINIUPNPC
  #include <miniupnpc/miniupnpc.h>
  #include <miniupnpc/upnpcommands.h>
@@ -12,11 +12,11 @@
  #endif
  
  #ifdef ZT_USE_SYSTEM_NATPMP
-@@ -210,7 +212,34 @@ public:
+@@ -208,7 +210,34 @@ public:
  				struct IGDdatas data;
  
  				int upnpError = 0;
--				UPNPDev *devlist = upnpDiscoverAll(5000,(const char *)0,(const char *)0,0,0,2,&upnpError);
+-				UPNPDev* devlist = upnpDiscoverAll(5000, (const char*)0, (const char*)0, 0, 0, 2, &upnpError);
 +				UPNPDev* devlist = nullptr;
 +				UPNPDev* tmplist = nullptr;
 +				for (int ipv6 = 0; ipv6 <= 1; ++ipv6) {
