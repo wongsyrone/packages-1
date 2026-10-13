@@ -19,16 +19,11 @@ usage() {
 	cat << EOF
 
 Usage:
- $MYPROG [options] -- command
-
-Commands:
-start                Start SECTION or NETWORK or all
-stop                 Stop NETWORK or all
+ $MYPROG [options]
 
 Parameters:
- -n NETWORK          Start/Stop sections in background monitoring NETWORK, force VERBOSE=0
  -S SECTION          SECTION to start
-                     use either -N NETWORK or -S SECTION
+                     SECTION is the UCI section name/id to start
 
  -h                  show this help and exit
  -V                  show version and exit
@@ -53,7 +48,6 @@ while getopts ":hv:dn:S:V" OPT; do
 		h)	usage; exit 0;;
 		v)	VERBOSE=$OPTARG;;
 		d)	DRY_RUN=1;;
-		n)	NETWORK=$OPTARG;;
 		S)	SECTION_ID=$OPTARG;;
 		V)	printf %s\\n "ddns-scripts $VERSION"; exit 0;;
 		:)	usage_err "option -$OPTARG missing argument";;
@@ -63,41 +57,12 @@ while getopts ":hv:dn:S:V" OPT; do
 done
 shift $((OPTIND - 1 ))	# OPTIND is 1 based
 
-[ -n "$NETWORK" -a -n "$SECTION_ID" ] && usage_err "use either option '-N' or '-S' not both"
-[ $# -eq 0 ] && usage_err "missing command"
-[ $# -gt 1 ] && usage_err "to much commands"
-
-case "$1" in
-	start)
-		if [ -n "$NETWORK" ]; then
-			start_daemon_for_all_ddns_sections "$NETWORK"
-			exit 0
-		fi
-		if [ -z "$SECTION_ID" ]; then
-			start_daemon_for_all_ddns_sections
-			exit 0
-		fi
-		;;
-	stop)
-		if [ -n "$INTERFACE" ]; then
-			stop_daemon_for_all_ddns_sections "$NETWORK"
-			exit 0
-		else
-			stop_daemon_for_all_ddns_sections
-			exit 0
-		fi
-		exit 1
-		;;
-	reload)
-		killall dynamic_dns_updater.sh 2>/dev/null
-		exit $?
-		;;
-	*)	usage_err "unknown command - $1";;
-esac
+[ -z "$SECTION_ID" ] && usage_err "option '-S' is missing"
 
 # set file names
 PIDFILE="$ddns_rundir/$SECTION_ID.pid"	# Process ID file
 UPDFILE="$ddns_rundir/$SECTION_ID.update"	# last update successful send (system uptime)
+CHKFILE="$ddns_rundir/$SECTION_ID.nextcheck" # next check (system uptime + check interval)
 DATFILE="$ddns_rundir/$SECTION_ID.dat"	# save stdout data of WGet and other extern programs called
 ERRFILE="$ddns_rundir/$SECTION_ID.err"	# save stderr output of WGet and other extern programs called
 IPFILE="$ddns_rundir/$SECTION_ID.ip"	#
@@ -152,8 +117,9 @@ trap "trap_handler 15" 15	# SIGTERM	Termination
 # ip_script	full path and name of your script to detect current IP
 # ip_interface	physical interface to use for detecting
 #
-# check_interval	check for changes every  !!! checks below 10 minutes make no sense because the Internet
-# check_unit		'days' 'hours' 'minutes' !!! needs about 5-10 minutes to sync an IP-change for an DNS entry
+# check_interval	check for changes every
+# check_interval_min	check_interval minimum value (used to be check_interval's minimum value of 300 seconds)
+# check_unit		'days' 'hours' 'minutes'
 #
 # force_interval	force to send an update to your service if no change was detected
 # force_unit		'days' 'hours' 'minutes' !!! force_interval="0" runs this script once for use i.e. with cron
@@ -208,14 +174,14 @@ ERR_LAST=$?	# save return code - equal 0 if SECTION_ID found
 	[ $VERBOSE -le 1 ] && VERBOSE=2		# force console out and logfile output
 	[ -f $LOGFILE ] && rm -f $LOGFILE	# clear logfile before first entry
 	write_log  7 "************ ************** ************** **************"
-	write_log  5 "PID '$$' started at $(eval $DATE_PROG)"
+	write_log  5 "PID '$$' started at $(date_prog)"
 	write_log  7 "ddns version  : $VERSION"
 	write_log  7 "uci configuration:${N}$(uci -q show ddns | grep '=service' | sort)"
 	write_log 14 "Service section '$SECTION_ID' not defined"
 }
 
 write_log 7 "************ ************** ************** **************"
-write_log 5 "PID '$$' started at $(eval $DATE_PROG)"
+write_log 5 "PID '$$' started at $(date_prog)"
 write_log 7 "ddns version  : $VERSION"
 write_log 7 "uci configuration:${N}$(uci -q show ddns.$SECTION_ID | sort)"
 # write_log 7 "ddns version  : $(opkg list-installed ddns-scripts | cut -d ' ' -f 3)"
@@ -266,16 +232,16 @@ esac
 
 [ -n "$update_url" ] && {
 	# only check if update_url is given, update_scripts have to check themselves
-	[ -z "$domain" ] && $(echo "$update_url" | grep "\[DOMAIN\]" >/dev/null 2>&1) && \
-		write_log 14 "Service section not configured correctly! Missing 'domain'"
-	[ -z "$username" ] && $(echo "$update_url" | grep "\[USERNAME\]" >/dev/null 2>&1) && \
-		write_log 14 "Service section not configured correctly! Missing 'username'"
-	[ -z "$password" ] && $(echo "$update_url" | grep "\[PASSWORD\]" >/dev/null 2>&1) && \
-		write_log 14 "Service section not configured correctly! Missing 'password'"
-	[ -z "$param_enc" ] && $(echo "$update_url" | grep "\[PARAMENC\]" >/dev/null 2>&1) && \
-		write_log 14 "Service section not configured correctly! Missing 'param_enc'"
-	[ -z "$param_opt" ] && $(echo "$update_url" | grep "\[PARAMOPT\]" >/dev/null 2>&1) && \
-		write_log 14 "Service section not configured correctly! Missing 'param_opt'"
+	[ -z "$domain" ] && [ "${update_url##*'[DOMAIN]'}" != "$update_url" ] && \
+		write_log 14 "Service section missing 'domain'"
+	[ -z "$username" ] && [ "${update_url##*'[USERNAME]'}" != "$update_url" ] && \
+		write_log 14 "Service section missing 'username'"
+	[ -z "$password" ] && [ "${update_url##*'[PASSWORD]'}" != "$update_url" ] && \
+		write_log 14 "Service section missing 'password'"
+	[ -z "$param_enc" ] && [ "${update_url##*'[PARAMENC]'}" != "$update_url" ] && \
+		write_log 14 "Service section missing 'param_enc'"
+	[ -z "$param_opt" ] && [ "${update_url##*'[PARAMOPT]'}" != "$update_url" ] && \
+		write_log 14 "Service section missing 'param_opt'"
 }
 
 # verify ip_source 'script' if script is configured and executable
@@ -287,9 +253,10 @@ fi
 
 # compute update interval in seconds
 get_seconds CHECK_SECONDS ${check_interval:-10} ${check_unit:-"minutes"} # default 10 min
+get_seconds CHECK_SECONDS_MIN ${check_interval_min:-5} ${check_unit:-"minutes"}
 get_seconds FORCE_SECONDS ${force_interval:-72} ${force_unit:-"hours"}	 # default 3 days
 get_seconds RETRY_SECONDS ${retry_interval:-60} ${retry_unit:-"seconds"} # default 60 sec
-[ $CHECK_SECONDS -lt 300 ] && CHECK_SECONDS=300		# minimum 5 minutes
+[ $CHECK_SECONDS -lt 300 ] && CHECK_SECONDS=$CHECK_SECONDS_MIN		 # minimum 5 minutes
 [ $FORCE_SECONDS -gt 0 -a $FORCE_SECONDS -lt $CHECK_SECONDS ] && FORCE_SECONDS=$CHECK_SECONDS	# FORCE_SECONDS >= CHECK_SECONDS or 0
 write_log 7 "check interval: $CHECK_SECONDS seconds"
 write_log 7 "force interval: $FORCE_SECONDS seconds"
@@ -318,8 +285,7 @@ if [ $LAST_TIME -eq 0 ]; then
 	write_log 7 "last update: never"
 else
 	EPOCH_TIME=$(( $(date +%s) - $CURR_TIME + $LAST_TIME ))
-	EPOCH_TIME="date -d @$EPOCH_TIME +'$ddns_dateformat'"
-	write_log 7 "last update: $(eval $EPOCH_TIME)"
+	write_log 7 "last update: $(date -d @$EPOCH_TIME +"$ddns_dateformat")"
 fi
 
 # verify Proxy server and set environment
@@ -342,7 +308,7 @@ ERR_LAST=$?
 [ $use_ipv6 -eq 1 ] && expand_ipv6 "$REGISTERED_IP" REGISTERED_IP
 
 # loop endlessly, checking ip every check_interval and forcing an updating once every force_interval
-write_log 6 "Starting main loop at $(eval $DATE_PROG)"
+write_log 6 "Starting main loop at $(date_prog)"
 while : ; do
 
 	get_current_ip CURRENT_IP		# read current IP
@@ -393,7 +359,10 @@ while : ; do
 
 	# now we wait for check interval before testing if update was recognized
 	[ $DRY_RUN -eq 0 ] && {
-		write_log 7 "Waiting $CHECK_SECONDS seconds (Check Interval)"
+		get_uptime NOW_TIME
+		echo $(($NOW_TIME + $CHECK_SECONDS)) > $CHKFILE   # save the next scheduled check time
+		NEXT_CHECK_TIME=$( date -d @$(( $(date +%s) + $CHECK_SECONDS )) +"$ddns_dateformat" )
+		write_log 7 "Waiting $CHECK_SECONDS seconds (Check Interval); Next check at $NEXT_CHECK_TIME"
 		sleep $CHECK_SECONDS &
 		PID_SLEEP=$!
 		wait $PID_SLEEP	# enable trap-handler
@@ -426,7 +395,7 @@ while : ; do
 	[ $FORCE_SECONDS -eq 0 ] && write_log 6 "Configured to run once"
 	[ $VERBOSE -gt 1 -o $FORCE_SECONDS -eq 0 ] && exit 0
 
-	write_log 6 "Rerun IP check at $(eval $DATE_PROG)"
+	write_log 6 "Rerun IP check at $(date_prog)"
 done
 # we should never come here there must be a programming error
 write_log 12 "Error in 'dynamic_dns_updater.sh - program coding error"

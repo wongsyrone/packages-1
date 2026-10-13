@@ -22,6 +22,9 @@ proto_openfortivpn_init_config() {
 	proto_config_add_int "persist_int"
 	proto_config_add_string "trusted_cert"
 	proto_config_add_string "remote_status_check"
+	proto_config_add_boolean "saml_login"
+	proto_config_add_int "saml_login_port"
+	proto_config_add_string  "realm"
 	no_device=1
 	available=1
 }
@@ -32,9 +35,9 @@ proto_openfortivpn_setup() {
 	local msg ifname ip server_ips pwfile callfile
 
 	local peeraddr port tunlink local_ip username password persist_int \
-	      trusted_cert remote_status_check
+	      trusted_cert remote_status_check saml_login saml_login_port realm
 	json_get_vars host peeraddr port tunlink local_ip username password persist_int \
-		      trusted_cert remote_status_check
+		      trusted_cert remote_status_check saml_login saml_login_port realm
 
 	ifname="vpn-$config"
 
@@ -137,6 +140,16 @@ proto_openfortivpn_setup() {
 	[ -f /etc/openfortivpn/user-cert-$config.pem ] && append_args "--user-cert=/etc/openfortivpn/user-cert-$config.pem"
 	[ -f /etc/openfortivpn/user-key-$config.pem ] && append_args "--user-key=/etc/openfortivpn/user-key-$config.pem"
 	[ -f /etc/openfortivpn/ca-$config.pem ] && append_args "--ca-file=/etc/openfortivpn/ca-$config.pem"
+
+	[ "$saml_login" = 1 ]  && {
+		if [ -n "$saml_login_port" ]; then
+			append_args "--saml-login=$saml_login_port"
+		else
+			append_args "--saml-login"
+		fi
+	}
+
+	[ -n "$realm" ] && append_args "--realm=$realm"
 
 	callfile="/var/etc/openfortivpn/peers/$config"
 	echo "115200

@@ -2,12 +2,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=debian-archive-keyring
-PKG_VERSION:=2023.4
-PKG_HASH:=6e93a87b9e50bd81518880ec07a62f95d7d8452f4aa703f5b0a3076439f1022c
+PKG_VERSION:=2025.1
+PKG_HASH:=9ea7778e443144ca490668737a8ab22dd3e748bb99e805e22ec055abeb3c7fac
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VERSION)_all.deb
-PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/d/$(PKG_NAME)/
+PKG_SOURCE_URL:=https://ftp.debian.org/debian/pool/main/d/$(PKG_NAME)/
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>

@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mosquitto
-PKG_VERSION:=2.0.18
-PKG_RELEASE:=3
+PKG_VERSION:=2.0.22
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://mosquitto.org/files/source/
-PKG_HASH:=d665fe7d0032881b1371a47f34169ee4edab67903b2cd2b4c083822823f4448a
+PKG_HASH:=2f752589ef7db40260b633fbdb536e9a04b446a315138d64a7ff3c14e2de6b68
 
 PKG_LICENSE:=EPL-2.0
 PKG_LICENSE_FILES:=LICENSE.txt
@@ -27,7 +27,7 @@ define Package/mosquitto/default
   SECTION:=net
   CATEGORY:=Network
   TITLE:=mosquitto - an MQTT message broker
-  URL:=http://www.mosquitto.org/
+  URL:=https://mosquitto.org/
   MAINTAINER:=Karl Palsson <karlp@etactica.com>
   DEPENDS:= +librt
   USERID:=mosquitto=200:mosquitto=200
@@ -132,7 +132,7 @@ define Package/libmosquitto/default/description
 use by any third party software that wants to communicate with _any_
 MQTT server.
 
-Should be useable for communicating with any MQTT v3.1/3.1.1/5 compatible
+Should be usable for communicating with any MQTT v3.1/3.1.1/5 compatible
 server, in addition to Mosquitto.
 endef
 
@@ -214,13 +214,13 @@ endef
 # This installs files on the target.  Compare with Build/InstallDev
 define Package/libmosquitto-ssl/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libmosquitto.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmosquitto.so.* $(1)/usr/lib/
 endef
 Package/libmosquitto-nossl/install = $(Package/libmosquitto-ssl/install)
 
 define Package/libmosquittopp/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libmosquittopp.so.* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmosquittopp.so.* $(1)/usr/lib/
 endef
 
 # Applies to all...

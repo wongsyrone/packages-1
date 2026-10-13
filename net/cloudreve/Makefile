@@ -5,26 +5,28 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cloudreve
-PKG_VERSION:=3.8.3
+PKG_VERSION:=4.18.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/cloudreve/Cloudreve.git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
-PKG_MIRROR_HASH:=3d875b1526ffa59b8201cd3b562dd254e7e807de96ddbf8bf78788f9a00deb7c
+PKG_MIRROR_HASH:=138ceee15bba6e6a87c6d478b94b725be4c893f5c7353aff897e04a07a8a05a4
 
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE
 PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
+PKG_CPE_ID:=cpe:/a:cloudreve:cloudreve
 
 PKG_BUILD_DEPENDS:=golang/host node/host node-yarn/host
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
-GO_PKG:=github.com/cloudreve/Cloudreve/v3
+GO_PKG:=github.com/cloudreve/Cloudreve/v4
+GO_PKG_EXCLUDES:=pkg/request/ssrftest
 GO_PKG_LDFLAGS_X:= \
-	$(GO_PKG)/pkg/conf.BackendVersion=$(PKG_VERSION) \
-	$(GO_PKG)/pkg/conf.LastCommit=$(PKG_VERSION)
+	$(GO_PKG)/application/constants.BackendVersion=$(PKG_VERSION) \
+	$(GO_PKG)/application/constants.LastCommit=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
@@ -47,9 +49,10 @@ define Build/Compile
 	( \
 		pushd $(PKG_BUILD_DIR)/assets ; \
 		yarn install ; \
+		yarn version --new-version $(PKG_VERSION) --no-git-tag-version ; \
 		yarn run build ; \
 		cd .. ; \
-		zip -r - assets/build > assets.zip ; \
+		zip -r - assets/build > application/statics/assets.zip ; \
 		popd ; \
 		$(call GoPackage/Build/Compile) ; \
 	)

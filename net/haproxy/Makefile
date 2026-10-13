@@ -10,12 +10,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=haproxy
-PKG_VERSION:=3.0.7
+PKG_VERSION:=3.4.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://www.haproxy.org/download/3.0/src
-PKG_HASH:=5c5c6b66645278435a89cd6e2a0d39f8e7d2546212d847bd0d236511ff996f11
+PKG_SOURCE_URL:=https://www.haproxy.org/download/3.4/src
+PKG_HASH:=791e1815f8af6e8b850a227a9a0a190f3d3478c9e8d38a0f51c98b7f4bfe368b
 
 PKG_MAINTAINER:=Thomas Heil <heil@terminal-consulting.de>, \
 		Christian Lachner <gladiac@gmail.com>
@@ -31,6 +31,7 @@ define Package/haproxy/Default
   CATEGORY:=Network
   TITLE:=TCP/HTTP Load Balancer
   URL:=https://www.haproxy.org/
+  DEPENDS:= +USE_GLIBC:libcrypt-compat +libpcre2 +libltdl +zlib +libpthread +liblua5.4 +libatomic
 endef
 
 define Package/haproxy/conffiles
@@ -46,7 +47,7 @@ endef
 define Package/haproxy
   $(call Package/haproxy/Default)
   TITLE+=with SSL support
-  DEPENDS+= +libpcre2 +libltdl +zlib +libpthread +liblua5.4 +libopenssl +libncurses +libreadline +libatomic
+  DEPENDS+= +libopenssl +libncurses +libreadline
   VARIANT:=ssl
 endef
 
@@ -59,7 +60,6 @@ define Package/haproxy-nossl
   $(call Package/haproxy/Default)
   TITLE+=without SSL support
   VARIANT:=nossl
-  DEPENDS+= +libpcre2 +libltdl +zlib +libpthread +liblua5.4 +libatomic
   CONFLICTS:=haproxy
 endef
 
@@ -68,23 +68,17 @@ define Package/haproxy-nossl/description
  This package is built without SSL support.
 endef
 
-TARGET=linux-glibc
+TARGET=linux-musl
 ENABLE_LUA:=y
 
-ifeq ($(CONFIG_USE_UCLIBC),y)
-	ADDON+=USE_BACKTRACE=
-	ADDON+=USE_LIBCRYPT=
-endif
-
-ifeq ($(CONFIG_USE_MUSL),y)
-	TARGET=linux-musl
+ifeq ($(CONFIG_USE_GLIBC),y)
+	TARGET=linux-glibc
 endif
 
 ifeq ($(BUILD_VARIANT),ssl)
 	ADDON+=USE_OPENSSL=1
 	ADDON+=ADDLIB="-lcrypto -lm"
 	ADDON+=USE_QUIC=1
-	ADDON+=USE_QUIC_OPENSSL_COMPAT=1
 endif
 
 define Build/Compile
@@ -93,12 +87,11 @@ define Build/Compile
 		CC="$(TARGET_CC)" \
 		PCREDIR="$(STAGING_DIR)/usr/" \
 		USE_LUA=1 LUA_LIB_NAME="lua5.4" LUA_INC="$(STAGING_DIR)/usr/include/lua5.4" LUA_LIB="$(STAGING_DIR)/usr/lib" \
-		SMALL_OPTS="-DBUFSIZE=16384 -DMAXREWRITE=1030 -DSYSTEM_MAXCONN=165530" \
-		USE_ZLIB=1 USE_PCRE2=1 USE_PCRE2_JIT=1 USE_PTHREAD_PSHARED=1 USE_LIBATOMIC=1 USE_PROMEX=1 \
+		USE_ZLIB=1 USE_PCRE2=1 USE_PCRE2_JIT=1 USE_LIBATOMIC=1 USE_PROMEX=1 \
 		VERSION="$(PKG_VERSION)" SUBVERS="-$(PKG_RELEASE)" \
 		VERDATE="$(shell date -d @$(SOURCE_DATE_EPOCH) '+%Y/%m/%d')" IGNOREGIT=1 \
 		$(ADDON) \
-		CFLAGS="$(TARGET_CFLAGS) -fno-strict-aliasing -Wdeclaration-after-statement -Wno-unused-label -Wno-sign-compare -Wno-unused-parameter -Wno-clobbered -Wno-missing-field-initializers -Wno-cast-function-type -Wno-address-of-packed-member -Wtype-limits -Wshift-negative-value -Wshift-overflow=2 -Wduplicated-cond -Wnull-dereference -fwrapv -fasynchronous-unwind-tables -Wno-null-dereference" \
+		CFLAGS="$(filter-out -ffile-prefix-map=% -fmacro-prefix-map=%,$(TARGET_CFLAGS)) -fno-strict-aliasing -Wdeclaration-after-statement -Wno-unused-label -Wno-sign-compare -Wno-unused-parameter -Wno-clobbered -Wno-missing-field-initializers -Wno-cast-function-type -Wno-address-of-packed-member -Wtype-limits -Wshift-negative-value -Wshift-overflow=2 -Wduplicated-cond -Wnull-dereference -fwrapv -fasynchronous-unwind-tables -Wno-null-dereference" \
 		LD="$(TARGET_CC)" \
 		LDFLAGS="$(TARGET_LDFLAGS)"
 
@@ -112,7 +105,7 @@ define Build/Compile
 	$(MAKE_VARS) $(MAKE) -C $(PKG_BUILD_DIR) \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS) -Wno-address-of-packed-member" \
+		CFLAGS="$(TARGET_CFLAGS) -Wno-address-of-packed-member -DHALOG_VERSION='$(PKG_VERSION)-$(PKG_RELEASE)'" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
 		admin/halog/halog
 endef

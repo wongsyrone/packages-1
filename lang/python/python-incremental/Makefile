@@ -8,17 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-incremental
-PKG_VERSION:=22.10.0
+PKG_VERSION:=24.11.0
 PKG_RELEASE:=1
 
 PYPI_NAME:=incremental
-PKG_HASH:=912feeb5e0f7e0188e6f42241d2f450002e11bbc0937c65865045854c24c0bd0
+PKG_HASH:=87d3480dbb083c1d736222511a8cf380012a8176c2456d01ef483242abbbcf8c
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 
-HOST_BUILD_DEPENDS:=python3/host python-build/host python-installer/host python-wheel/host
+HOST_BUILD_DEPENDS:=python3/host python-build/host python-installer/host python-hatchling/host
+PKG_BUILD_DEPENDS:=python3/host python-build/host python-installer/host python-hatchling/host
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
@@ -32,11 +33,16 @@ define Package/python3-incremental
   SUBMENU:=Python
   TITLE:=Versions your Python projects
   URL:=https://github.com/twisted/incremental
-  DEPENDS:=+python3-light +python3-distutils +python3-pkg-resources
+  DEPENDS:=+python3-light +python3-packaging
 endef
 
 define Package/python3-incremental/description
 Incremental is a small library that versions your Python projects.
+endef
+
+define Py3Package/python3-incremental/filespec
++|$(PYTHON3_PKG_DIR)
+-|$(PYTHON3_PKG_DIR)/incremental/tests
 endef
 
 $(eval $(call Py3Package,python3-incremental))

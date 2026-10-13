@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libgcrypt
-PKG_VERSION:=1.11.0
+PKG_VERSION:=1.12.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://www.gnupg.org/ftp/gcrypt/libgcrypt/
-PKG_HASH:=09120c9867ce7f2081d6aaa1775386b98c2f2f246135761aae47d81f58685b9c
+PKG_HASH:=d77f68f48879510e79a2f65977ccc68981781ea0923e5bdffac2a193ea3d660e
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
 PKG_CPE_ID:=cpe:/a:gnupg:libgcrypt
@@ -35,7 +35,7 @@ endef
 
 define Package/libgcrypt/description
  This is a general purpose cryptographic library based on the code from
- GnuPG. It provides functions for all cryptograhic building blocks:
+ GnuPG. It provides functions for all cryptographic building blocks:
  symmetric ciphers (AES, DES, Arcfour, CAST5), hash algorithms (MD5, SHA-1,
  RIPE-MD160, SHA-224/256, SHA-384/512), MACs (HMAC for all hash
  algorithms), public key algorithms (RSA, DSA), large integer functions,
@@ -47,7 +47,6 @@ endef
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
-	--disable-asm \
 	--disable-doc \
 	--with-gpg-error-prefix="$(STAGING_DIR)/usr"
 

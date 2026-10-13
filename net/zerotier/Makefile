@@ -6,24 +6,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zerotier
-PKG_UPSTREAM_VERSION:=1.14.1
+PKG_VERSION:=1.16.2
+PKG_RELEASE:=1
 
-#PKG_SOURCE_PROTO:=git
-# dev branch is the latest
-#PKG_SOURCE_URL:=https://github.com/zerotier/ZeroTierOne.git
-#PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)
-PKG_SOURCE_VERSION:=b5c51796b9a14ef0251d73e20e346683ad8014cf
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-
-PKG_VERSION:=$(PKG_UPSTREAM_VERSION)~$(call version_abbrev,$(PKG_SOURCE_VERSION))
-
-PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_SOURCE_VERSION)?
-PKG_HASH:=75d27bad6dc0610e039179565bfd496e236fa2549b317a6f50ae2f01918ebd05
-PKG_BUILD_DIR:=$(BUILD_DIR)/ZeroTierOne-$(PKG_SOURCE_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=2c607f573c6e38815433af289d364a689a203b18b51125f06c4472014d0657f0
+PKG_BUILD_DIR:=$(BUILD_DIR)/ZeroTierOne-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Moritz Warning <moritzwarning@web.de>
-PKG_LICENSE:=BSL 1.1
+PKG_LICENSE:=MPL-2.0
 PKG_LICENSE_FILES:=LICENSE.txt
+PKG_CPE_ID:=cpe:/a:zerotier:zerotierone
 
 PKG_ASLR_PIE:=0
 PKG_BUILD_PARALLEL:=1
@@ -55,6 +49,7 @@ endif
 MAKE_FLAGS += \
 	ZT_EMBEDDED=1 \
 	ZT_SSO_SUPPORTED=0 \
+	ZT_NONFREE=0 \
 	DEFS="" \
 	OSTYPE="Linux" \
 
@@ -65,20 +60,19 @@ ifeq ($(CONFIG_ZEROTIER_ENABLE_SELFTEST),y)
 endif
 endef
 
-# all warnings and don't treat all of them as error, I don't want to fix them all
-TARGET_CFLAGS += -Wall
-
 # Make binary smaller
 TARGET_CFLAGS += -Wl,-z,noexecstack
 TARGET_LDFLAGS += -Wl,--as-needed -Wl,-z,noexecstack
 
+# Prevent `-isystem ext` from causing the wrong miniupnpc header to be used (OpenWrt packages issue - 18019)
+TARGET_CFLAGS += -isystem $(STAGING_DIR)/usr/include
+
 define Package/zerotier/conffiles
 /etc/config/zerotier
-/etc/zerotier
 endef
 
 define Package/zerotier/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/zerotier
+	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
@@ -87,9 +81,8 @@ define Package/zerotier/install
 ifeq ($(CONFIG_ZEROTIER_ENABLE_SELFTEST),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-selftest $(1)/usr/bin/
 endif
-	#moved to luci-app-zerotier
 
-	#$(CP) ./files/* $(1)/
+	$(CP) ./files/* $(1)/
 endef
 
 $(eval $(call BuildPackage,zerotier))

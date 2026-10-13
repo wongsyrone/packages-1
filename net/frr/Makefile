@@ -7,22 +7,21 @@
 
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
-PKG_VERSION:=10.2.1
+PKG_VERSION:=10.7.1
 PKG_RELEASE:=1
-PKG_SOURCE_DATE:=2025-01-21
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_DATE).tar.gz
-PKG_SOURCE_VERSION:=989328c7e47c7bbcf3364d5424ac17f49fd05c57
-PKG_SOURCE_URL:=https://codeload.github.com/FRRouting/frr/tar.gz/$(PKG_SOURCE_VERSION)?
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/FRRouting/frr/tar.gz/$(PKG_NAME)-$(PKG_VERSION)?
+PKG_HASH:=6aaf9d89deb94eeda6acceaa6fe48d8cd365d0908231e58f628538ff49696fc4
 
-PKG_HASH:=d8ea2bad243cfcfd96b9b4a5dd524fe1deeb577cd535529babe24a02cae26f06
+
 PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_SOURCE_VERSION)
-HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/$(PKG_NAME)-$(PKG_SOURCE_VERSION)
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_NAME)-$(PKG_VERSION)
+HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/$(PKG_NAME)-$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_LICENSE:=GPL-2.0-only LGPL-2.1-only
-PKG_CPE_ID:=cpe:/a:ffrouting:ffrouting
+PKG_CPE_ID:=cpe:/a:frrouting:frrouting
 
 PKG_DAEMON_AVAILABLE:= \
 	babeld \
@@ -38,6 +37,7 @@ PKG_DAEMON_AVAILABLE:= \
 	pathd \
 	pbrd \
 	pimd \
+	pim6d \
 	ripd \
 	ripngd \
 	staticd \
@@ -74,13 +74,14 @@ define Package/frr/Default
   CATEGORY:=Network
   SUBMENU:=Routing and Redirection
   URL:=https://www.frrouting.org/
-  DEPENDS:=frr
+  # Spelled out: apk's soname resolution would pick libyang 5.x.
+  DEPENDS:=frr +libyang-legacy
 endef
 
 define Package/frr
   $(call Package/frr/Default)
   DEPENDS:=+librt +libatomic +libcap +libncurses +libjson-c +libreadline \
-    +libyang +libprotobuf-c +FRR_OPENSSL:libopenssl +FRR_SNMP:libnetsnmp +more
+    +libyang-legacy +libprotobuf-c +FRR_OPENSSL:libopenssl +FRR_SNMP:libnetsnmp +more
   TITLE:=The FRRouting (FRR) Software Routing Suite
   MENU:=1
 endef
@@ -131,7 +132,7 @@ define BuildDaemon
 ifeq ($(1),bgpd)
 	KCONFIG:=CONFIG_TCP_MD5SIG=y
 endif
-	DEPENDS+=$(2)
+	DEPENDS+=$(2) +frr-watchfrr +frr-zebra
     endef
 #	if [ "$(1)" == "bfdd" ]; then \
 #	export HAVE_BFDD == 1 ; fi
@@ -153,7 +154,16 @@ define Package/frr/conffiles
 /etc/frr/vtysh.conf
 endef
 
-TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed -latomic
+# frr needs the v3 ABI; its configure looks libyang up three ways
+# (PKG_CHECK_MODULES, pkg-config --modversion, AC_CHECK_LIB), so all of
+# LDFLAGS, LIBYANG_* and PKG_CONFIG_PATH point at the legacy prefix.
+TARGET_LDFLAGS += -Wl,--gc-sections,--as-needed -latomic \
+	-L$(STAGING_DIR)/usr/lib/libyang-legacy/lib
+
+CONFIGURE_VARS += \
+	LIBYANG_CFLAGS="-I$(STAGING_DIR)/usr/lib/libyang-legacy/include" \
+	LIBYANG_LIBS="-L$(STAGING_DIR)/usr/lib/libyang-legacy/lib -lyang" \
+	PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/libyang-legacy/lib/pkgconfig:$$$$PKG_CONFIG_PATH"
 
 define Host/Configure
 	$(Host/Configure/Default)
@@ -198,9 +208,11 @@ define Package/frr/install
 	$(INSTALL_BIN) ./files/frr $(1)/etc/init.d/
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/frr
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/vtysh $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mgmtd $(1)/usr/sbin/
 	$(INSTALL_CONF) ./files/vtysh.conf $(1)/etc/frr/
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/etc/frr
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libfrr.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmgmt_be_nb.so* $(1)/usr/lib/
 	$(if $(CONFIG_FRR_SNMP),$(CP) $(PKG_INSTALL_DIR)/usr/lib/libfrrsnmp.so* $(1)/usr/lib/,)
 	$(INSTALL_CONF) ./files/{frr.conf,daemons} $(1)/etc/frr/
 endef
@@ -212,8 +224,10 @@ define Package/frr-watchfrr/install
 endef
 
 define Package/frr-zebra/install
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/lib
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/zebra $(1)/usr/sbin/
+	# $(CP) keeps the symlink chain; INSTALL_BIN would flatten it.
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmlag_pb.so* $(1)/usr/lib/
 endef
 
 define Package/frr-pythontools/install
@@ -241,6 +255,7 @@ $(eval $(call BuildDaemon,ospf6d,@IPV6))
 $(eval $(call BuildDaemon,pathd,))
 $(eval $(call BuildDaemon,pbrd,))
 $(eval $(call BuildDaemon,pimd,))
+$(eval $(call BuildDaemon,pim6d,))
 $(eval $(call BuildDaemon,ripd,))
 $(eval $(call BuildDaemon,ripngd,@IPV6))
 $(eval $(call BuildDaemon,staticd,))

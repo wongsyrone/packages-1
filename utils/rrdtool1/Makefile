@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rrdtool1
 PKG_VERSION:=1.0.50
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/rrdtool-$(PKG_VERSION)
 PKG_SOURCE:=rrdtool-$(PKG_VERSION).tar.gz
@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/package.mk
 
 define Package/rrdtool1/Default
   TITLE:=Round Robin Database (RRD)
-  URL:=http://oss.oetiker.ch/rrdtool/
+  URL:=https://oss.oetiker.ch/rrdtool/
 endef
 
 define Package/rrdtool1/description/Default
@@ -86,7 +86,7 @@ $(call Package/rrdtool1/description/Default)
  This package contains command line tools used to manage RRDs.
 endef
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CFLAGS += $(FPIC) -std=gnu17
 
 CONFIGURE_ARGS += \
 	$(DISABLE_NLS) \

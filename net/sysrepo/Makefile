@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sysrepo
-PKG_VERSION:=2.0.53
-PKG_RELEASE:=2
+PKG_VERSION:=5.1.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/sysrepo/sysrepo/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=fe09da5f40fb53e3fb97268a134cc0ed3003f0018d0d117c73e81e1553a11f30
+PKG_HASH:=e43d59320309f81c14f7f4224661253df767ebcc9a9b269a54b3577c96f406e4
 
-PKG_MAINTAINER:=Jakov Smolic <jakov.smolic@sartura.hr>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
@@ -29,7 +29,7 @@ define Package/libsysrepo
   CATEGORY:=Libraries
   TITLE:=YANG-based data store library
   URL:=https://www.sysrepo.org/
-  DEPENDS:=+libyang +libatomic +libprotobuf-c +libev +libredblack +librt +libpthread
+  DEPENDS:=+libyang $(ATOMIC64_DEPENDS) +librt +libpthread
 endef
 
 define Package/sysrepo
@@ -61,26 +61,25 @@ Sysrepo is an YANG-based configuration and operational state data store for Unix
 endef
 
 
+TARGET_LDFLAGS += -Wl,--as-needed
+
 CMAKE_OPTIONS += \
-	-DFORCE_WSL=TRUE \
 	-DENABLE_TESTS:BOOL=FALSE \
-	-DBUILD_EXAMPLES:BOOL=FALSE \
+	-DENABLE_EXAMPLES:BOOL=FALSE \
 	-DCMAKE_INSTALL_PREFIX=/usr \
-	-DCMAKE_BUILD_TYPE="Package" \
-	-DREPOSITORY_LOC:PATH=/etc/sysrepo \
-	-DCALL_TARGET_BINS_DIRECTLY=OFF \
-	-DGEN_LANGUAGE_BINDINGS:BOOL=TRUE
+	-DPRINTED_CONTEXT_ADDRESS=0 \
+	-DNOTIFD_SETUP:BOOL=OFF
 
 define Package/libsysrepo/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libsysrepo.so* $(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/etc/sysrepo/yang
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf-with-defaults.yang $(1)/etc/sysrepo/yang/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf-notifications.yang $(1)/etc/sysrepo/yang/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf.yang $(1)/etc/sysrepo/yang/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-origin.yang $(1)/etc/sysrepo/yang/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/sysrepo.yang $(1)/etc/sysrepo/yang/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf-with-defaults@2011-06-01.yang $(1)/etc/sysrepo/yang/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf-notifications@2012-02-06.yang $(1)/etc/sysrepo/yang/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-netconf@2013-09-29.yang $(1)/etc/sysrepo/yang/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/ietf-origin@2018-02-14.yang $(1)/etc/sysrepo/yang/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/modules/sysrepo@2025-04-04.yang $(1)/etc/sysrepo/yang/
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/libsysrepo.default $(1)/etc/uci-defaults/95_libsysrepo

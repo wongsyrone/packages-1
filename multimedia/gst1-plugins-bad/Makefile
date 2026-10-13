@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gst1-plugins-bad
-PKG_VERSION:=1.24.10
-PKG_RELEASE:=2
+PKG_VERSION:=1.28.7
+PKG_RELEASE:=1
 
 PKG_SOURCE:=gst-plugins-bad-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://gstreamer.freedesktop.org/src/gst-plugins-bad/
-PKG_HASH:=1707e3103950c9baed364a8af2ba0495d6b113fcd36e1062dda5f582b8f8904d
+PKG_HASH:=dc525383c18b2c265bbe6a43d498656cd918aaa130aa4e3abeabcdaa741c3ffe
 PKG_BUILD_DIR:=$(BUILD_DIR)/gst-plugins-bad-$(PKG_VERSION)
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org> \
@@ -33,7 +33,7 @@ define Package/gstreamer1-bad/Default
   CATEGORY:=Multimedia
   SECTION:=multimedia
   TITLE:=GStreamer
-  URL:=http://gstreamer.freedesktop.org/
+  URL:=https://gstreamer.freedesktop.org/
   DEPENDS:= +gst1-plugins-base +libgstreamer1 +libgst1pbutils $(ICONV_DEPENDS)
 endef
 
@@ -156,7 +156,6 @@ MESON_ARGS += \
 	-Dvideoparsers=$(if $(CONFIG_PACKAGE_gst1-mod-videoparsersbad),en,dis)abled \
 	$(call GST_COND_SELECT,videosignal) \
 	$(call GST_COND_SELECT,vmnc) \
-	-Dy4m=$(if $(CONFIG_PACKAGE_gst1-mod-y4mdec),en,dis)abled \
 	\
 	-Dopencv=disabled \
 	-Dwayland=$(if $(CONFIG_PACKAGE_libgst1gl),en,dis)abled \
@@ -251,7 +250,7 @@ MESON_ARGS += \
 	-Dzxing=disabled \
 	-Dwpe=disabled \
 	-Dmagicleap=disabled \
-	-Dv4l2codecs=disabled \
+	$(call GST_COND_SELECT,v4l2codecs) \
 	\
 	$(call GST_COND_SELECT,hls) \
 	-Dhls-crypto=nettle \
@@ -329,13 +328,14 @@ define GstBuildLibrary
 endef
 
 $(eval $(call GstBuildLibrary,adaptivedemux,adaptivedemux,app uridownloader,))
+$(eval $(call GstBuildLibrary,basecamerabinsrc,basecamerabinsrc,app,))
+$(eval $(call GstBuildLibrary,codecparsers,codecparsers,,))
+$(eval $(call GstBuildLibrary,codecs,codecs,codecparsers,))
+$(eval $(call GstBuildLibrary,mpegts,mpegts,,))
 $(eval $(call GstBuildLibrary,photography,photography,,))
 $(eval $(call GstBuildLibrary,play,play,,))
 $(eval $(call GstBuildLibrary,player,player,play,))
-$(eval $(call GstBuildLibrary,basecamerabinsrc,basecamerabinsrc,app,))
 $(eval $(call GstBuildLibrary,uridownloader,uridownloader,,))
-$(eval $(call GstBuildLibrary,codecparsers,codecparsers,,))
-$(eval $(call GstBuildLibrary,mpegts,mpegts,,))
 $(eval $(call GstBuildLibrary,transcoder,transcoder,,))
 
 # 1: short name
@@ -427,12 +427,12 @@ $(eval $(call GstBuildPlugin,speed,speed support,audio,,))
 $(eval $(call GstBuildPlugin,subenc,subenc support,controller,,))
 $(eval $(call GstBuildPlugin,switchbin,switchbin support,,,))
 $(eval $(call GstBuildPlugin,timecode,timecode support,,,))
+$(eval $(call GstBuildPlugin,v4l2codecs,V4L2 stateless codecs support,codecs,,))
 $(eval $(call GstBuildPlugin,videofiltersbad,videofiltersbad support,,,))
 $(eval $(call GstBuildPlugin,videoframe_audiolevel,videoframe_audiolevel support,,,))
 $(eval $(call GstBuildPlugin,videoparsersbad,videoparsersbad support,codecparsers,,))
 $(eval $(call GstBuildPlugin,videosignal,videosignal support,,,))
 $(eval $(call GstBuildPlugin,vmnc,vmnc support,,,))
-$(eval $(call GstBuildPlugin,y4mdec,y4mdec support,,,))
 
 $(eval $(call GstBuildPlugin,bluez,bluez support,,,+bluez-libs))
 #$(eval $(call GstBuildPlugin,bz2,bzip2 support,,,+libbz2))

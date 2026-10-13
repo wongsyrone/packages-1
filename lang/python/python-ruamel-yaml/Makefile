@@ -8,18 +8,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-ruamel-yaml
-PKG_VERSION:=0.17.32
+PKG_VERSION:=0.19.1
 PKG_RELEASE:=1
 
 PYPI_NAME:=ruamel.yaml
-PKG_HASH:=ec939063761914e14542972a5cba6d33c23b0859ab6342f61cf070cfc600efc2
+PYPI_SOURCE_NAME:=ruamel_yaml
+PYTHON3_PKG_WHEEL_NAME:=ruamel_yaml
+PKG_HASH:=53eb66cd27849eff968ebf8f0bf61f46cdac2da1d1f3576dd4ccee9b25c31993
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 PKG_CPE_ID:=cpe:/a:ruamel.yaml_project:ruamel.yaml
 
+PKG_BUILD_DEPENDS:=python-setuptools/host
+
 include ../pypi.mk
+# The sdist tarball is ruamel_yaml-*.tar.gz (underscores) but internally
+# contains a directory ruamel.yaml-*/ (dots); override PKG_BUILD_DIR here,
+# before package.mk, so that STAMP_BUILT and friends use the correct path.
+PKG_BUILD_DIR:=$(BUILD_DIR)/pypi/$(PYPI_NAME)-$(PKG_VERSION)
 include $(INCLUDE_DIR)/package.mk
 include ../python3-package.mk
 

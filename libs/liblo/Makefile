@@ -8,18 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=liblo
-PKG_VERSION:=0.31
-PKG_RELEASE:=2
+PKG_VERSION:=0.36
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@SF/liblo
-PKG_HASH:=2b4f446e1220dcd624ecd8405248b08b7601e9a0d87a0b94730c2907dbccc750
+PKG_HASH:=c08d14832e8dcf8f06840405824a4f9611a0cb3daed0198946326c740941c8b6
 
-PKG_MAINTAINER:=
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
 
-CMAKE_INSTALL:=1
 CMAKE_SOURCE_SUBDIR:=cmake
 PKG_CONFIG_DEPENDS:=CONFIG_PACKAGE_liblo-utils
 
@@ -28,7 +27,7 @@ include $(INCLUDE_DIR)/cmake.mk
 
 define Package/liblo/Default
   TITLE:=Lightweight Open Sound Control (OSC)
-  URL:=http://liblo.sourceforge.net/
+  URL:=https://liblo.sourceforge.net/
 endef
 
 define Package/liblo
@@ -54,6 +53,12 @@ CMAKE_OPTIONS += \
 	-DWITH_CPP_TESTS=OFF \
 	-DWITH_STATIC=OFF \
 	-DTHREADING=ON
+
+define Build/InstallDev
+	$(call Build/InstallDev/cmake,$(1))
+	$(SED) 's,/usr/include,$$$${prefix}/include,g' $(1)/usr/lib/pkgconfig/liblo.pc
+	$(SED) 's,/usr/lib,$$$${exec_prefix}/lib,g' $(1)/usr/lib/pkgconfig/liblo.pc
+endef
 
 define Package/liblo/install
 	$(INSTALL_DIR) $(1)/usr/lib

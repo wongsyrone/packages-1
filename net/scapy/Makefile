@@ -8,11 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=scapy
-PKG_VERSION:=2.5.0
+PKG_VERSION:=2.7.0
 PKG_RELEASE:=1
 
 PYPI_NAME:=$(PKG_NAME)
-PKG_HASH:=5b260c2b754fd8d409ba83ee7aee294ecdbb2c235f9f78fe90bc11cb6e5debc2
+PKG_HASH:=bfc1ef1b93280aea1ddee53be7f74232aa28ac3d891244d41ee85200d24aa446
+
+PKG_BUILD_DEPENDS:=python-setuptools/host
 
 PKG_MAINTAINER:=W. Michael Petullo <mike@flyn.org>
 PKG_LICENSE:=GPL-2.0-only

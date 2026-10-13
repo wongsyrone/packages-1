@@ -8,13 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mstflint
-PKG_VERSION:=4.30.0
+PKG_VERSION:=4.37.0
+PKG_SUBVERSION:=1
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-1.tar.gz
-PKG_SOURCE_URL:=https://github.com/Mellanox/$(PKG_NAME)/releases/download/v$(PKG_VERSION)-1
-PKG_SOURCE_DATE:=2024-11-06
-PKG_HASH:=f2fd1a795cb56466f335d2fbd55d6a9bab20132d1edde6f61750cff0bde6da7b
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SUBVERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/Mellanox/$(PKG_NAME)/releases/download/v$(PKG_VERSION)-$(PKG_SUBVERSION)
+PKG_SOURCE_DATE:=2026-09-01
+PKG_HASH:=89299633cc78c17032547aa78b9df1d9bf08c5bd6279cde7750bd4d4367afb81
 
 PKG_MAINTAINER:=Til Kaiser <mail@tk154.de>
 PKG_LICENSE:=GPL-2.0-only
@@ -25,9 +26,10 @@ PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/mstflint
-  SECTION:=Utilities
+  SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Mellanox Firmware Burning and Diagnostics Tools
   URL:=https://github.com/Mellanox/mstflint
@@ -110,16 +112,20 @@ define Package/mstflint/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstarchive $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstconfig $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstcongestion $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstdevices_info $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstefuse $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstflint $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstfwctrl $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstfwmanager $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstlink $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstmcra $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstmget_temp $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstmread $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstmtserver $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstmwrite $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstreg $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstregdump $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/msttokengenerator $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstvpd $(1)/usr/bin/
 
 	$(INSTALL_DIR) $(1)/usr/share/mstflint
@@ -128,6 +134,7 @@ define Package/mstflint/install
 ifeq ($(CONFIG_PACKAGE_MSTFLINT_INCLUDE_PYTHON),y)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstfwreset $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstfwtrace $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstgenerate_pgcb_commands $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstprivhost $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstresourcedump $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mstresourceparse $(1)/usr/bin/

@@ -1,19 +1,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fluidsynth
-PKG_VERSION:=2.4.0
+PKG_VERSION:=2.6.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/FluidSynth/fluidsynth/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=fd4d216a3030abc56a339985ab0506328660cd77b2d71dd98c240c58c03d8f7f
+PKG_HASH:=6d17570ea2086dd6fbcac995465773a6f316e689089b7fb7ba0b34c2ec6f680d
 
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=LGPL-2.1
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:fluidsynth:fluidsynth
+
+# fluidsynth >= 2.5 build-depends on the gcem header-only constexpr math
+# library; the OpenWrt 'gcem' package installs its headers and CMake
+# config files into staging so find_package(GCEM) resolves there.
+PKG_BUILD_DEPENDS:=gcem
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
+include $(INCLUDE_DIR)/nls.mk
 
 CMAKE_INSTALL:=1
 
@@ -32,11 +39,11 @@ CMAKE_OPTIONS += \
 	-Denable-ipv6=off \
 	-Denable-jack=off \
 	-Denable-ladspa=off \
-	-Denable-libinstpatch=off \
 	-Denable-libsndfile=on \
 	-Denable-midishare=off \
 	-Denable-opensles=off \
 	-Denable-oboe=off \
+	-Denable-native-dls=off \
 	-Denable-network=off \
 	-Denable-oss=off \
 	-Denable-dsound=off \
@@ -44,6 +51,7 @@ CMAKE_OPTIONS += \
 	-Denable-waveout=off \
 	-Denable-winmidi=off \
 	-Denable-sdl2=off \
+	-Denable-sdl3=off \
 	-Denable-pulseaudio=off \
 	-Denable-pipewire=off \
 	-Denable-readline=off \
@@ -54,14 +62,15 @@ CMAKE_OPTIONS += \
 	-Denable-coremidi=off \
 	-Denable-framework=off \
 	-Denable-dart=off \
-	-Denable-kai=off
+	-Denable-kai=off \
+	-Denable-signalsmith=off
 
 define Package/libfluidsynth
   SECTION:=sound
   CATEGORY:=Sound
   TITLE:=A SoundFont Synthesizer
   URL:=https://www.fluidsynth.org
-  DEPENDS:=+alsa-lib +glib2 +libsndfile +libstdcpp
+  DEPENDS:=+alsa-lib +libsndfile +libstdcpp
 endef
 
 define Package/libfluidsynth/description

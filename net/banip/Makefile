@@ -1,12 +1,12 @@
 # banIP - ban incoming and outgoing IPs via named nftables Sets
-# Copyright (c) 2018-2025 Dirk Brenken (dev@brenken.org)
+# Copyright (c) 2018-2026 Dirk Brenken (dev@brenken.org)
 # This is free software, licensed under the GNU General Public License v3.
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=banip
-PKG_VERSION:=1.5.0
-PKG_RELEASE:=5
+PKG_VERSION:=1.9.0
+PKG_RELEASE:=3
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_MAINTAINER:=Dirk Brenken <dev@brenken.org>
 
@@ -16,14 +16,14 @@ define Package/banip
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=banIP blocks IPs via named nftables Sets
-	DEPENDS:=+jshn +jsonfilter +firewall4 +ca-bundle +rpcd +rpcd-mod-rpcsys
+	DEPENDS:=+jshn +jsonfilter +firewall4 +gawk +ca-bundle +rpcd +rpcd-mod-rpcsys
 	PKGARCH:=all
 endef
 
 define Package/banip/description
 banIP blocks IPs via named nftables Sets.
 banIP supports many IP blocklist feeds and provides a log service to block suspicious IPs in realtime.
-Please see https://github.com/openwrt/packages/blob/master/net/banip/files/README.md for further information.
+Please see https://github.com/openwrt/packages/blob/master/net/banip/README.md for further information.
 
 endef
 
@@ -51,7 +51,7 @@ define Package/banip/install
 	$(INSTALL_BIN) ./files/banip.init $(1)/etc/init.d/banip
 
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_CONF) ./files/banip-functions.sh $(1)/usr/lib
+	$(INSTALL_DATA) ./files/banip-functions.sh $(1)/usr/lib
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/banip.conf $(1)/etc/config/banip
@@ -66,6 +66,9 @@ define Package/banip/install
 
 	$(INSTALL_DIR) $(1)/www/cgi-bin
 	$(INSTALL_BIN) ./files/banip.cgi $(1)/www/cgi-bin/banip
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/95-banip-housekeeping $(1)/etc/uci-defaults
 endef
 
 $(eval $(call BuildPackage,banip))

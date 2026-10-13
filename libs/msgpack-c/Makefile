@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=msgpack-c
-PKG_VERSION:=6.0.0
+PKG_VERSION:=7.0.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/msgpack/msgpack-c/tar.gz/c-$(PKG_VERSION)?
-PKG_HASH:=af6f3cf25edb220aa2140b09bb5bdd73ddf00938194bd94ebe5c92090cccb466
+PKG_HASH:=f720af974b72cda874c2c347d4bafef5385c4e7942a27b3c87d6fa482412d08c
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-c-$(PKG_VERSION)
 
 PKG_LICENSE:=BSL-1.0

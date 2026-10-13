@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-cffi
-PKG_VERSION:=1.16.0
+PKG_VERSION:=2.1.1
 PKG_RELEASE:=1
 
 PYPI_NAME:=cffi
-PKG_HASH:=bcb3ef43e58665bbda2fb198698fcae6776483e0c4a631aa5647806c25e02cc0
+PKG_HASH:=dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 
 HOST_BUILD_DEPENDS:= \
 	python3/host \

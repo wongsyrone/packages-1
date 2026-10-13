@@ -29,43 +29,34 @@
  ## Write full CLF-formatted date and time to log (default: write only time)
  # logclftime = true
  
-@@ -118,9 +118,9 @@ ipv6 = false
- [http]
- ## Web Console settings
+@@ -124,7 +124,7 @@ ipv6 = false
  ## Enable the Web Console (default: true)
--# enabled = true
-+enabled = true
+ # enabled = true
  ## Address and port service will listen on (default: 127.0.0.1:7070)
 -# address = 127.0.0.1
 +address = 192.168.1.1
  # port = 7070
  ## Path to web console (default: /)
  # webroot = /
-@@ -138,9 +138,9 @@ ipv6 = false
- 
- [httpproxy]
+@@ -144,7 +144,7 @@ ipv6 = false
  ## Enable the HTTP proxy (default: true)
--# enabled = true
-+enabled = true
+ # enabled = true
  ## Address and port service will listen on (default: 127.0.0.1:4444)
 -# address = 127.0.0.1
 +address = 192.168.1.1
  # port = 4444
- ## Optional keys file for proxy local destination (default: http-proxy-keys.dat)
- # keys = http-proxy-keys.dat
-@@ -154,9 +154,9 @@ ipv6 = false
- 
- [socksproxy]
+ ## Optional keys file for proxy local destination (default: transient-proxy)
+ ## "Transient" means it changes on every new app launch
+@@ -162,7 +162,7 @@ ipv6 = false
  ## Enable the SOCKS proxy (default: true)
--# enabled = true
-+enabled = true
+ # enabled = true
  ## Address and port service will listen on (default: 127.0.0.1:4447)
 -# address = 127.0.0.1
 +address = 192.168.1.1
  # port = 4447
- ## Optional keys file for proxy local destination (default: socks-proxy-keys.dat)
- # keys = socks-proxy-keys.dat
-@@ -170,7 +170,7 @@ ipv6 = false
+ ## Optional keys file for proxy local destination (default: transient-proxy)
+ ## "Transient" means it changes on every new app launch
+@@ -178,7 +178,7 @@ ipv6 = false
  
  [sam]
  ## Enable the SAM bridge (default: true)
@@ -74,21 +65,3 @@
  ## Address and ports service will listen on (default: 127.0.0.1:7656, udp: 7655)
  # address = 127.0.0.1
  # port = 7656
-@@ -206,7 +206,7 @@ ipv6 = false
- 
- [upnp]
- ## Enable or disable UPnP: automatic port forwarding (enabled by default in WINDOWS, ANDROID)
--# enabled = false
-+enabled = false
- ## Name i2pd appears in UPnP forwardings list (default: I2Pd)
- # name = I2Pd
- 
-@@ -248,7 +248,7 @@ verify = true
- [limits]
- ## Maximum active transit sessions (default: 5000)
- ## This value is doubled if floodfill mode is enabled!
--# transittunnels = 5000
-+transittunnels = 500
- ## Limit number of open file descriptors (0 - use system limit)
- # openfiles = 0
- ## Maximum size of corefile in Kb (0 - use system limit)

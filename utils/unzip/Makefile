@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=unzip
 PKG_REV:=60
 PKG_VERSION:=6.0
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 
 PKG_SOURCE:=$(PKG_NAME)$(PKG_REV).tar.gz
 PKG_SOURCE_URL:=@SF/infozip
@@ -31,7 +31,7 @@ define Package/unzip
   CATEGORY:=Utilities
   DEPENDS:=
   TITLE:=De-archiver for .zip files
-  URL:=http://infozip.sourceforge.net/UnZip.html
+  URL:=https://infozip.sourceforge.net/UnZip.html
   SUBMENU:=Compression
 endef
 

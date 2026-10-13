@@ -8,13 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gnupg
-PKG_VERSION:=2.2.39
+PKG_VERSION:=2.5.21
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://gnupg.org/ftp/gcrypt/gnupg
-PKG_HASH:=ab74db6685f026d7c0a10b527ecddecd608606a1691d15fda5d0a7f7d27e4c2f
+PKG_HASH:=e3af2c8caa46a66a9329fa7c6880af260451914d819595beabc2c26597b31352
 
+PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=COPYING COPYING.CC0 COPYING.GPL2 COPYING.LGPL21 COPYING.LGPL3 COPYING.other
 PKG_CPE_ID:=cpe:/a:gnupg:gnupg
@@ -25,13 +26,15 @@ PKG_BUILD_PARALLEL:=1
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
+CONFIGURE_VARS += ac_cv_path_GPGRT_CONFIG="$(STAGING_DIR)/usr/bin/gpgrt-config"
+
 define Package/gnupg2/Default
   SECTION:=utils
   CATEGORY:=Utilities
   SUBMENU:=Encryption
   DEPENDS:=+libgpg-error +libnpth +libassuan +libksba +libgcrypt +zlib +libncurses +libreadline $(ICONV_DEPENDS) $(INTL_DEPENDS)
   TITLE:=GNU privacy guard (version 2) - a free PGP replacement
-  URL:=http://www.gnupg.org/
+  URL:=https://gnupg.org/
 endef
 
 define Package/gnupg2
@@ -49,6 +52,7 @@ endef
 define Package/gnupg2-dirmngr
   $(call Package/gnupg2/Default)
   TITLE:=Keyserver, CRL, and OCSP access for GnuPG (version 2)
+  DEPENDS+=+libgnutls
 endef
 
 define Package/gnupg2-utils
@@ -82,7 +86,7 @@ access to OCSP providers.  Dirmngr is invoked internally by 'gpg',
 endef
 
 define Package/gnupg2-utils/description
- Key management utilies for GnuPG (version 2).
+ Key management utilities for GnuPG (version 2).
  This package is needed to import keys from a keyserver.
 endef
 
@@ -92,11 +96,10 @@ CONFIGURE_ARGS += \
 	--with-libassuan-prefix="$(STAGING_DIR)/usr/" \
 	--with-ksba-prefix="$(STAGING_DIR)/usr/" \
 	--with-npth-prefix="$(STAGING_DIR)/usr/" \
-	--enable-dirmngr \
+	--disable-doc \
 	--disable-bzip2 \
 	--disable-card-support \
 	--disable-ccid-driver \
-	--disable-gnutls \
 	--disable-ldap \
 	--disable-ntbtls \
 	--disable-rpath \

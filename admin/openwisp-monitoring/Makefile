@@ -5,15 +5,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openwisp-monitoring
-PKG_VERSION:=0.2.1
+PKG_VERSION:=0.3.1
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Federico Capoano <support@openwisp.io>
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 
+PKG_CONFIG_DEPENDS:=CONFIG_NETJSON_MONITORING_IWINFO
+
 PKG_SOURCE_URL:=https://github.com/openwisp/openwrt-openwisp-monitoring.git
-PKG_MIRROR_HASH:=6d74de36d84b2765c1e49b2467685e19b2e7ccf13f11ad383d7eb4ac8f57cbc9
+PKG_MIRROR_HASH:=0bebd022387dedded05b120f1bc2715ca743555cf990fc5ac4060e6e96c24646
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKGARCH:=all
@@ -26,7 +28,7 @@ define Package/openwisp-monitoring
   SECTION:=admin
   SUBMENU:=openwisp
   DEPENDS:=+netjson-monitoring +openwisp-config
-  URL:=http://openwisp.org
+  URL:=https://openwisp.org
 endef
 
 define Package/netjson-monitoring
@@ -36,7 +38,7 @@ define Package/netjson-monitoring
   SUBMENU:=openwisp
   DEPENDS:=+libubus-lua +lua-cjson +rpcd
   DEPENDS+=+NETJSON_MONITORING_IWINFO:rpcd-mod-iwinfo
-  URL:=http://openwisp.org
+  URL:=https://openwisp.org
 endef
 
 define Package/netjson-monitoring/config

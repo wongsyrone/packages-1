@@ -9,9 +9,9 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://erdgeist.org/gitweb/opentracker
-PKG_SOURCE_DATE:=2024-06-22
-PKG_SOURCE_VERSION:=c854b3db9bf620e86481acfcc9fc31eba64bc8e6
-PKG_MIRROR_HASH:=50d0fc8166ae927aa4dad7701f23c9faab80afb0680f7ea460e7b048f8f01a16
+PKG_SOURCE_DATE:=2026-05-26
+PKG_SOURCE_VERSION:=1c7fac4cc23801ac81a2abd7d3110683831c4811
+PKG_MIRROR_HASH:=091b87ecf0de75e89e3a52f2b773a4847951d5dd83f4013b32c03f34b9da415e
 
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 PKG_LICENSE:=Beerware
@@ -25,7 +25,7 @@ define Package/opentracker
   SECTION:=net
   CATEGORY:=Network
   TITLE:=opentracker
-  URL:=http://erdgeist.org/arts/software/opentracker/
+  URL:=https://erdgeist.org/arts/software/opentracker/
   DEPENDS:=+zlib +libpthread
   PROVIDES:=opentracker6
 endef

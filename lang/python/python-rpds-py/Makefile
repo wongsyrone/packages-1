@@ -8,16 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-rpds-py
-PKG_VERSION:=0.10.6
+PKG_VERSION:=2026.9.1
 PKG_RELEASE:=1
 
 PYPI_NAME:=rpds-py
 PYPI_SOURCE_NAME:=rpds_py
-PKG_HASH:=4ce5a708d65a8dbf3748d2474b580d606b1b9f91b5c6ab2a316e0b0cf7a4ba50
+PKG_HASH:=4793ef7f78268b124b73fa933440f01d258bbae01de9fa53e9080c9ab0425a12
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 
 PKG_BUILD_DEPENDS:=python-maturin/host
 

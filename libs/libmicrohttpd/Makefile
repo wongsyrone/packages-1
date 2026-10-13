@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libmicrohttpd
-PKG_VERSION:=1.0.1
+PKG_VERSION:=1.0.10
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/libmicrohttpd
-PKG_HASH:=a89e09fc9b4de34dde19f4fcb4faaa1ce10299b9908db1132bbfa1de47882b94
+PKG_HASH:=04bfe8ef75db7d629a33de767599765cecadc56274a39822d5d081030d577685
 
 PKG_MAINTAINER:=Alexander Couzens <lynxis@fe80.eu>
 PKG_LICENSE:=LGPL-2.1-or-later
@@ -33,7 +33,7 @@ endef
 
 define Package/libmicrohttpd-no-ssl
 $(call Package/libmicrohttpd/default)
-  TITLE:=GNU libmicrohttpd is an embbeded HTTP server library
+  TITLE:=GNU libmicrohttpd is an embedded HTTP server library
   VARIANT:=nossl
   DEFAULT_VARIANT:=1
   PROVIDES:=libmicrohttpd
@@ -41,7 +41,7 @@ endef
 
 define Package/libmicrohttpd-ssl
 $(call Package/libmicrohttpd/default)
-  TITLE:=GNU libmicrohttpd is an embbeded HTTP and HTTPS server library
+  TITLE:=GNU libmicrohttpd is an embedded HTTP and HTTPS server library
   VARIANT:=ssl
   DEPENDS:=+libgnutls
   PROVIDES:=libmicrohttpd

@@ -1,9 +1,8 @@
 menu "Configuration"
-	depends on PACKAGE_lpac
 
 config LPAC_WITH_PCSC
 	bool "Include APDU PCSC Backend support"
-	default n
+	default y
 	help
 	  Compile LPAC with APDU PCSC Backend support.
 
@@ -19,4 +18,9 @@ config LPAC_WITH_UQMI
 	help
 	  Compile LPAC with APDU uqmi Backend support.
 
+config LPAC_WITH_MBIM
+	bool "Include APDU MBIM Backend support"
+	default y
+	help
+	  Compile LPAC with APDU MBIM Backend support.
 endmenu

@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=oniguruma
-PKG_VERSION:=6.9.9
-PKG_RELEASE:=1
+PKG_VERSION:=6.9.10
+PKG_RELEASE:=4
 
 PKG_SOURCE:=onig-v$(subst _,-,$(PKG_VERSION)).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/kkos/oniguruma/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=001aa1202e78448f4c0bf1a48c76e556876b36f16d92ce3207eccfd61d99f2a0
+PKG_HASH:=ad92309d0d13eebc27f6592e875f3efbfa3dda2bf6da5952e00f0a2120c921a8
 
 PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
 PKG_LICENSE:=BSD-2-Clause
@@ -43,7 +43,7 @@ CONFIGURE_ARGS += --enable-posix-api
 
 define Package/oniguruma/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libonig.so.$(ABI_VERSION) $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libonig.so.$(ABI_VERSION)* $(1)/usr/lib/
 endef
 
 define Build/InstallDev

@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cloudflared
-PKG_VERSION:=2025.1.0
+PKG_VERSION:=2026.8.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/cloudflare/cloudflared/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=f9223cdefaa4b75aa1c49638936af9d5007b6c7bd943ab70203bb75bf32467da
+PKG_HASH:=04cd85af52c2c012f08212c878b4c403eadf410865f2356a80f361d475d2fc92
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -31,7 +31,7 @@ define Package/cloudflared
   CATEGORY:=Network
   SUBMENU:=Web Servers/Proxies
   TITLE:=Cloudflare Tunnel client
-  URL:=https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-guide
+  URL:=https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/get-started/
   DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
 endef
 

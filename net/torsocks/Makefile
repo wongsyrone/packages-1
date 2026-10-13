@@ -9,14 +9,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=torsocks
 PKG_VERSION:=2.3.0
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_URL:=https://people.torproject.org/~dgoulet/torsocks/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_HASH:=b9f1b981d6b3fd4e1820de1eee325f8a7038c84765d5a6cd9af12571d5cc3622
 
-PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec1@gmail.com>
-PKG_LICENSE:=GPLv2
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
+PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
 
 PKG_INSTALL:=1
@@ -37,13 +37,6 @@ endef
 define Package/torsocks/description
  Torsocks allows you to use most applications in a safe way with Tor.
  It ensures that DNS requests are handled safely and explicitly rejects any traffic other than TCP from the application you're using.
-endef
-
-define Build/Configure
-	$(call Build/Configure/Default)
-ifeq ($(CONFIG_USE_UCLIBC),y)
-	find $(PKG_BUILD_DIR) -name 'Makefile' -exec sed -i 's|--param ssp-buffer-size=1 -fstack-protector-all||' \{\} \+
-endif
 endef
 
 define Package/conffiles

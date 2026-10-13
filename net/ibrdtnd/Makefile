@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ibrdtnd
 PKG_VERSION:=1.0.1
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://www.ibr.cs.tu-bs.de/projects/ibr-dtn/releases
+PKG_SOURCE_URL:=https://www.ibr.cs.tu-bs.de/projects/ibr-dtn/releases
 PKG_HASH:=9bd79636154093ab6bf4fd10d6c62d67c6db45141460847b19def327c93771ed
 
 PKG_MAINTAINER:=Johannes Morgenroth <jm@m-network.de>

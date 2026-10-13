@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nghttp2
-PKG_VERSION:=1.63.0
+PKG_VERSION:=1.70.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/nghttp2/nghttp2/releases/download/v$(PKG_VERSION)
-PKG_HASH:=4879c75dd32a74421b9857924449460b8341796c0613ba114ab2188e4622354b
+PKG_HASH:=e05cb1388eaca3830aded4ccf20044b6e1ac1a61411dcca11b0437c4285c8bc2
 
 PKG_MAINTAINER:=Hans Dedecker <dedeckeh@gmail.com>
 PKG_LICENSE:=MIT
@@ -24,7 +24,7 @@ define Package/libnghttp2
 endef
 
 define Package/libnghttp2/description
- C library implementing the framing layer of the HTTP/2 protocol. It can be used to build a HTTP/2-capable HTTP client or server
+HTTP/2 C Library
 endef
 
 CMAKE_OPTIONS += \

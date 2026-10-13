@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shadow
-PKG_VERSION:=4.8.1
-PKG_RELEASE:=3
+PKG_VERSION:=4.20.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/shadow-maint/shadow/releases/download/$(PKG_VERSION)
-PKG_HASH:=a3ad4630bdc41372f02a647278a8c3514844295d36eefe68ece6c3a641c1ae62
+PKG_HASH:=b89f432b75ae55a2d852b446d0365484795fdf533ab97d550e325fa15594a224
 
-PKG_MAINTAINER:=
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:debian:shadow
@@ -28,9 +28,9 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
 SHADOW_APPLETS := \
-	chage chfn chgpasswd chpasswd chsh expiry faillog gpasswd \
-	groupadd groupdel groupmems groupmod groups grpck grpconv grpunconv \
-	lastlog login logoutd newgidmap newgrp newuidmap newusers nologin \
+	chage chfn chgpasswd chpasswd chsh faillog gpasswd \
+	groupadd groupdel groupmod grpck grpconv grpunconv \
+	login newgrp newgidmap newuidmap newusers nologin \
 	passwd pwck pwconv pwunconv su \
 	useradd userdel usermod vipw
 
@@ -42,6 +42,12 @@ CONFIGURE_ARGS += \
 	--without-attr \
 	--without-tcb \
 	--without-nscd \
+	--without-sssd \
+	--without-libbsd \
+	--disable-logind \
+	--enable-subordinate-ids \
+	--disable-shared \
+	--enable-static \
 	--with-bcrypt
 
 CONFIGURE_VARS += \
@@ -132,7 +138,7 @@ define Package/shadow-common/install
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/login.defs $(1)/etc/
 	$(SED) 's,SU_NAME,#SU_NAME,g' $(1)/etc/login.defs
-	$(SED) 's,#ENCRYPT_METHOD DES,ENCRYPT_METHOD BCRYPT,g' $(1)/etc/login.defs
+	$(SED) 's,#ENCRYPT_METHOD SHA512,ENCRYPT_METHOD BCRYPT,g' $(1)/etc/login.defs
 endef
 
 define Package/shadow-utils/install

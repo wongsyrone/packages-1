@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
+# Copyright (C) 2022-2025 CZ.NIC, z. s. p. o. (https://www.nic.cz/)
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=librespeed-cli
-PKG_VERSION:=1.0.10
-PKG_RELEASE:=3
+PKG_VERSION:=1.0.14
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/librespeed/speedtest-cli/tar.gz/v${PKG_VERSION}?
-PKG_HASH:=904ec84f41714d5a7ab778534d332219cd254fdd0f97cc33ebb3540d31fb802c
+PKG_HASH:=3031e0f7babd7f9c51a1c49b95026d12532668455e8cc459049160f1bd525bf3
 
 PKG_MAINTAINER:=Michal Vasilek <michal.vasilek@nic.cz>
 PKG_LICENSE:=LGPL-3.0-only
@@ -25,6 +25,15 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=no-mips16
 
 GO_PKG:=github.com/librespeed/speedtest-cli
+# Without these the binary reports no name and no version at all, which leaves
+# --version printing an empty string where the version belongs. The v prefix
+# matches what the upstream release build produces, so the same version does
+# not read differently depending on where the binary came from. BuildDate is
+# left unset on purpose: the only value available here is a timestamp, and
+# baking one in would make the build unreproducible.
+GO_PKG_LDFLAGS_X:= \
+	$(GO_PKG)/defs.ProgName=$(PKG_NAME) \
+	$(GO_PKG)/defs.ProgVersion=v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk

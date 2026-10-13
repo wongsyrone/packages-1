@@ -7,29 +7,37 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=lsof
-PKG_VERSION:=4.99.4
+PKG_VERSION:=4.99.7
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/lsof-org/lsof/releases/download/$(PKG_VERSION)
-PKG_HASH:=0c444e2dabec14ad146cbb7f5b52b5ab4976728402ff348d9feced9ad9740c66
+PKG_HASH:=4a10391aab0b8ce1f539e82a1966693b2a6cf225972a6504ebb7ec4fa71675de
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_MAINTAINER:=Maxim Storchak <m.storchak@gmail.com>
 PKG_LICENSE:=lsof
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:lsof_project:lsof
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
+
+DISABLE_NLS:=
 
 define Package/lsof
   SECTION:=utils
   CATEGORY:=Utilities
-  DEPENDS:=+libtirpc
   TITLE:=LiSt Open Files - a diagnostic tool
-  URL:=http://people.freebsd.org/~abe/
+  URL:=https://lsof.readthedocs.io/en/latest/
 endef
 
-CONFIGURE_ARGS += --without-selinux
+CONFIGURE_ARGS += \
+    --without-selinux \
+    --without-libtirpc \
+    --disable-liblsof
+
+MAKE_FLAGS += man8_MANS=
 
 define Package/lsof/install
 	$(INSTALL_DIR) $(1)/usr/bin

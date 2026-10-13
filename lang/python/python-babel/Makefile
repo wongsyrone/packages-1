@@ -8,17 +8,23 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-babel
-PKG_VERSION:=2.12.1
+PKG_VERSION:=2.18.0
 PKG_RELEASE:=1
 
-PYPI_NAME:=Babel
-PKG_HASH:=cc2d99999cd01d44420ae725a21c9e3711b3aadc7976d6147f622d8581963455
+PYPI_NAME:=babel
+PKG_HASH:=b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d
 
 PKG_MAINTAINER:=Josef Schlehofer <pepe.schlehofer@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
-HOST_BUILD_DEPENDS:=python3/host python-build/host python-installer/host python-wheel/host
+PKG_BUILD_DEPENDS:=python3/host python-setuptools/host
+HOST_BUILD_DEPENDS:= \
+	python3/host \
+	python-setuptools/host \
+	python-build/host \
+	python-installer/host \
+	python-wheel/host
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
@@ -34,8 +40,7 @@ define Package/python3-babel
   URL:=https://babel.pocoo.org/
   DEPENDS:= \
     +python3-decimal \
-    +python3-distutils \
-    +python3-email \
+    +python3-urllib \
     +python3-light \
     +python3-logging \
     +python3-urllib

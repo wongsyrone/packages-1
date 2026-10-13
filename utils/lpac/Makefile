@@ -3,12 +3,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lpac
-PKG_VERSION:=2.2.1
-PKG_RELEASE:=1
+PKG_VERSION:=2.3.0
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/estkme-group/lpac/tar.gz/refs/tags/v$(PKG_VERSION)?
-PKG_HASH:=3d87080a625b10430eebb82f89e2d24e16a84a8435a9c40b3718fd88c82028ba
+PKG_HASH:=661dffbd1e9e5732dab4a0bb0a9837d4906c8c66bd748bda262fe3e8d3e420f6
 
 PKG_MAINTAINER:=David Bauer <david.bauer@uniberg.com>
 PKG_LICENSE:=AGPL-3.0-only LGPL-2.0-only
@@ -23,9 +23,11 @@ define Package/lpac
   CATEGORY:=Utilities
   TITLE:=eUICC eSIM LPA written in C
   DEPENDS:= \
+    +libcurl \
     +LPAC_WITH_PCSC:libpcsclite \
     +LPAC_WITH_PCSC:pcscd \
-    +libcurl
+    +LPAC_WITH_MBIM:libmbim \
+    +LPAC_WITH_UQMI:uqmi
   URL:=https://github.com/estkme-group/lpac
 endef
 
@@ -50,6 +52,7 @@ CMAKE_OPTIONS += \
   -DLPAC_WITH_APDU_PCSC=$(if $(CONFIG_LPAC_WITH_PCSC),ON,OFF) \
   -DLPAC_WITH_APDU_AT=$(if $(CONFIG_LPAC_WITH_AT),ON,OFF) \
   -DLPAC_WITH_APDU_UQMI=$(if $(CONFIG_LPAC_WITH_UQMI),ON,OFF) \
+  -DLPAC_WITH_APDU_MBIM=$(if $(CONFIG_LPAC_WITH_MBIM),ON,OFF) \
   -DLPAC_WITH_APDU_QMI_QRTR=OFF
 
 define Package/lpac/install

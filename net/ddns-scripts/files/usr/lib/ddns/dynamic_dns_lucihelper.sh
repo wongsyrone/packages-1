@@ -26,6 +26,7 @@ Commands:
  start               start given SECTION
  reload              force running ddns processes to reload changed configuration
  restart             restart all ddns processes
+ stop                stop given SECTION
 
 Parameters:
  -6                  => use_ipv6=1          (default 0)
@@ -39,11 +40,10 @@ Parameters:
  -s SCRIPT           => ip_script=SCRIPT; ip_source="script"
  -t                  => force_dnstcp=1      (default 0)
  -u URL              => ip_url=URL; ip_source="web"
- -S SECTION          SECTION to start
+ -S SECTION          SECTION to [start|stop]
 
  -h                  => show this help and exit
  -L                  => use_logfile=1    (default 0)
- -v LEVEL            => VERBOSE=LEVEL    (default 0)
  -V                  => show version and exit
 
 EOF
@@ -60,8 +60,6 @@ SECTION_ID="lucihelper"
 LOGFILE="$ddns_logdir/$SECTION_ID.log"
 DATFILE="$ddns_rundir/$SECTION_ID.$$.dat"	# save stdout data of WGet and other extern programs called
 ERRFILE="$ddns_rundir/$SECTION_ID.$$.err"	# save stderr output of WGet and other extern programs called
-DDNSPRG="/usr/lib/ddns/dynamic_dns_updater.sh"
-VERBOSE=0		# no console logging
 # global variables normally set by reading DDNS UCI configuration
 use_syslog=0		# no syslog
 use_logfile=0		# no logfile
@@ -87,7 +85,6 @@ while getopts ":6d:fghi:l:n:p:s:S:tu:Lv:V" OPT; do
 		u)	ip_url="$OPTARG"; ip_source="web";;
 		h)	usage; exit 255;;
 		L)	use_logfile=1;;
-		v)	VERBOSE=$OPTARG;;
 		S)	SECTION=$OPTARG;;
 		V)	printf %s\\n "ddns-scripts $VERSION"; exit 255;;
 		:)	usage_err "option -$OPTARG missing argument";;
@@ -147,19 +144,20 @@ case "$1" in
 		;;
 	start)
 		[ -z "$SECTION" ] &&  usage_err "command 'start': 'SECTION' not set"
-		if [ $VERBOSE -eq 0 ]; then	# start in background
-			$DDNSPRG -v 0 -S $SECTION -- start &
-		else
-			$DDNSPRG -v $VERBOSE -S $SECTION -- start
-		fi
+		/etc/init.d/ddns start "$SECTION"
 		;;
 	reload)
-		$DDNSPRG -- reload
+		/etc/init.d/ddns reload
 		;;
 	restart)
-		$DDNSPRG -- stop
-		sleep 1
-		$DDNSPRG -- start
+		/etc/init.d/ddns restart
+		;;
+	stop)
+		if [ -n "$SECTION" ]; then
+			/etc/init.d/ddns stop "$SECTION"
+		else
+			/etc/init.d/ddns stop
+		fi
 		;;
 	*)
 		__RET=255
@@ -167,6 +165,6 @@ case "$1" in
 esac
 
 # remove out and err file
-[ -f $DATFILE ] && rm -f $DATFILE
-[ -f $ERRFILE ] && rm -f $ERRFILE
+[ -f "$DATFILE" ] && rm -f "$DATFILE"
+[ -f "$ERRFILE" ] && rm -f "$ERRFILE"
 return $__RET

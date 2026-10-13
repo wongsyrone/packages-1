@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=srt
-PKG_VERSION:=1.5.3
-PKG_RELEASE:=1
+PKG_VERSION:=1.5.4
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/haivision/srt/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=befaeb16f628c46387b898df02bc6fba84868e86a6f6d8294755375b9932d777
+PKG_HASH:=d0a8b600fe1b4eaaf6277530e3cfc8f15b8ce4035f16af4a5eb5d4b123640cdd
 PKG_MAINTAINER:=Koen Vandeputte <koen.vandeputte@citymesh.com>
 
 PKG_LICENSE:=MPL-2.0
@@ -37,7 +37,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/srt
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:= +libstdcpp +libatomic
+  DEPENDS:=+libstdcpp $(ATOMIC64_DEPENDS)
   DEPENDS += +SRT_OPENSSL:libopenssl +SRT_MBEDTLS:libmbedtls +SRT_GNUTLS:libgnutls
   TITLE:=secure reliable transport
   URL:=https://github.com/Haivision/srt

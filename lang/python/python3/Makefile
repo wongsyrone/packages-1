@@ -11,14 +11,14 @@ include $(TOPDIR)/rules.mk
 include ../python3-version.mk
 
 PKG_NAME:=python3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_VERSION:=$(PYTHON3_VERSION).$(PYTHON3_VERSION_MICRO)
 
 PKG_SOURCE:=Python-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://www.python.org/ftp/python/$(PKG_VERSION)
-PKG_HASH:=07a4356e912900e61a15cb0949a06c4a05012e213ecd6b4e84d0f67aabbee372
+PKG_HASH:=3b48dac8fb59f62eaa67ac83c1eb12bda1b7a08406dd286e252c11a66be27f81
 
-PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=Python-2.0.1 0BSD
 PKG_LICENSE_FILES:=LICENSE Doc/copyright.rst Doc/license.rst Modules/_ctypes/darwin/LICENSE Modules/_ctypes/libffi_osx/LICENSE Modules/expat/COPYING
 PKG_CPE_ID:=cpe:/a:python:python
@@ -35,13 +35,13 @@ PKG_BUILD_PARALLEL:=1
 HOST_BUILD_PARALLEL:=1
 # LTO is handled here individually, see --with-lto below
 # "no-lto" prevents CONFIG_USE_LTO to add additional and interfering flags
-PKG_BUILD_FLAGS:=no-lto
+PKG_BUILD_FLAGS:=no-mips16 no-lto
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/Python-$(PKG_VERSION)
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/Python-$(PKG_VERSION)
 
 PKG_BUILD_DEPENDS:=bluez python3/host python-build/host python-installer/host python-wheel/host
-HOST_BUILD_DEPENDS:=bzip2/host libffi/host readline/host
+HOST_BUILD_DEPENDS:=bzip2/host libffi/host ncurses/host
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -70,7 +70,7 @@ endef
 define Package/libpython3
 $(call Package/python3/Default)
   TITLE+= core library
-  DEPENDS:=+libpthread
+  DEPENDS:=+libpthread $(ATOMIC64_DEPENDS)
   ABI_VERSION:=$(PYTHON3_VERSION)
 endef
 
@@ -96,7 +96,7 @@ endef
 define Package/python3-light
 $(call Package/python3/Default)
   TITLE+= light installation
-  DEPENDS:=+python3-base +libbz2 +zlib
+  DEPENDS:=+python3-base +libbz2 +zlib +libzstd +USE_GLIBC:libcrypt-compat
 endef
 
 define Package/python3-light/config
@@ -244,7 +244,8 @@ PYTHON3_BASE_LIB_FILES:= \
 	/usr/lib/python$(PYTHON3_VERSION)/os.py \
 	/usr/lib/python$(PYTHON3_VERSION)/posixpath.py \
 	/usr/lib/python$(PYTHON3_VERSION)/site.py \
-	/usr/lib/python$(PYTHON3_VERSION)/sysconfig.py \
+	/usr/lib/python$(PYTHON3_VERSION)/sysconfig/__init__.py \
+	/usr/lib/python$(PYTHON3_VERSION)/sysconfig/__main__.py \
 	/usr/lib/python$(PYTHON3_VERSION)/stat.py
 
 PYTHON3_LIB_FILES_DEL+=$(PYTHON3_BASE_LIB_FILES)
@@ -258,7 +259,6 @@ endef
 
 define Py3Package/python3-light/filespec
 +|/usr/lib/python$(PYTHON3_VERSION)
--|/usr/lib/python$(PYTHON3_VERSION)/distutils/cygwinccompiler.py
 -|/usr/lib/python$(PYTHON3_VERSION)/idlelib
 -|/usr/lib/python$(PYTHON3_VERSION)/tkinter
 -|/usr/lib/python$(PYTHON3_VERSION)/turtledemo
@@ -287,15 +287,32 @@ Package/python3/install:=:
 ifeq ($(HOST_OS),Linux)
 HOST_LDFLAGS += \
 	-Wl,--no-as-needed -lrt
+
+HOST_MAKE_VARS += \
+	TMPDIR=/tmp
 endif
 
 # Would be nice to be able to do this, but hosts are very fiddly
 # HOST_MAKE_VARS += \
 # 	PYTHONSTRICTEXTENSIONBUILD=1
 
-# Bypass configure test
+# Bypass configure test. Force the curses header checks that can only
+# ever resolve against the build host's own distro packages to "no" so
+# those stay out; leave ac_cv_header_ncursesw_{ncurses,panel}_h alone so
+# configure picks up the SDK's own wide-char ncurses consistently with
+# what its pkg-config-based ncursesw/panelw detection already reports.
+# ac_cv_header_ncursesw_curses_h stays forced: host ncurses is built
+# with --without-curses-h, so staging_dir/hostpkg/include/ncursesw/
+# deliberately has no curses.h of its own for this to genuinely resolve
+# against - a real, non-forced "yes" here could only come from the
+# build host's own /usr/include/ncursesw/curses.h.
 HOST_CONFIGURE_VARS += \
-	ac_cv_working_openssl_hashlib=yes
+	py_cv_module__tkinter=n/a \
+	ac_cv_working_openssl_hashlib=yes \
+	ac_cv_header_curses_h=no \
+	ac_cv_header_ncurses_h=no \
+	ac_cv_header_panel_h=no \
+	ac_cv_header_ncursesw_curses_h=no
 
 ifeq ($(HOST_OS),Darwin)
 HOST_CONFIGURE_VARS += \
@@ -305,6 +322,7 @@ HOST_MAKE_VARS += \
 endif
 
 HOST_CONFIGURE_ARGS += \
+	--with-readline=no \
 	--enable-optimizations \
 	--disable-test-modules \
 	--with-ensurepip=upgrade \
@@ -312,22 +330,17 @@ HOST_CONFIGURE_ARGS += \
 	--with-system-expat \
 	--without-cxx-main
 
+# uuid has seemingly unsolvable issues with pkgconfig
+HOST_CFLAGS += \
+	-I$(STAGING_DIR_HOST)/include/uuid
+
 define Host/Configure
 	$(SED) 's/^ENABLE_USER_SITE = None$$$$/ENABLE_USER_SITE = False/' $(HOST_BUILD_DIR)/Lib/site.py
 	$(call Host/Configure/Default)
-	ls $(HOST_BUILD_DIR)/Lib/ensurepip/_bundled/setuptools-$(PYTHON3_SETUPTOOLS_VERSION)-py3-none-any.whl
 	ls $(HOST_BUILD_DIR)/Lib/ensurepip/_bundled/pip-$(PYTHON3_PIP_VERSION)-py3-none-any.whl
 endef
 
 define Host/Install
-	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)),,
-		rm -rf \
-			$(HOST_PYTHON3_PKG_DIR)/pkg_resources \
-			$(HOST_PYTHON3_PKG_DIR)/setuptools \
-			$(HOST_PYTHON3_PKG_DIR)/setuptools-* \
-			$(HOST_PYTHON3_PKG_DIR)/.setuptools-patched* \
-			$(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_*
-	)
 	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)),,
 		rm -rf \
 			$(HOST_PYTHON3_PKG_DIR)/pip \
@@ -336,10 +349,6 @@ define Host/Install
 			$(HOST_PYTHON3_PKG_DIR)/.pip_installed_*
 	)
 	$(call Host/Install/Default)
-	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)),,
-		$(call HostPatchDir,$(HOST_PYTHON3_PKG_DIR),./patches-host-setuptools,)
-		touch $(HOST_PYTHON3_PKG_DIR)/.setuptools_installed_$(PYTHON3_SETUPTOOLS_VERSION)-$(PYTHON3_SETUPTOOLS_PKG_RELEASE)
-	)
 	$(if $(wildcard $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)),,
 		$(call HostPatchDir,$(HOST_PYTHON3_PKG_DIR),./patches-host-pip,)
 		touch $(HOST_PYTHON3_PKG_DIR)/.pip_installed_$(PYTHON3_PIP_VERSION)-$(PYTHON3_PIP_PKG_RELEASE)

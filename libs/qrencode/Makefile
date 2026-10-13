@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=qrencode
 PKG_VERSION:=4.1.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://fukuchi.org/works/qrencode
@@ -18,6 +18,7 @@ PKG_HASH:=e455d9732f8041cf5b9c388e345a641fd15707860f928e94507b1961256a6923
 PKG_MAINTAINER:=Jonathan Bennett <JBennett@incomsystems.biz>
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:qrencode_project:qrencode
 
 PKG_CONFIG_DEPENDS:=CONFIG_QRENCODE_PNG
 
@@ -54,7 +55,7 @@ define Package/qrencode
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=qrencode binary for producing qr codes
-  URL:=http://fukuchi.org/works/qrencode/
+  URL:=https://fukuchi.org/works/qrencode/
   DEPENDS:=+libqrencode
 endef
 

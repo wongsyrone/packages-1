@@ -6,11 +6,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=numpy
-PKG_VERSION:=2.2.1
+PKG_VERSION:=2.4.6
 PKG_RELEASE:=1
 
 PYPI_NAME:=$(PKG_NAME)
-PKG_HASH:=45681fd7128c8ad1c379f0ca0776a8b0c6583d2f69889ddac01559dfe4390918
+PKG_HASH:=f3a3570c4a2a16746ac2c31a7c7c7b0c186b95ce902e33db6f28094ed7387dda
 
 PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 
@@ -37,6 +37,10 @@ include $(INCLUDE_DIR)/meson.mk
 MESON_ARGS+= \
 	-Ddisable-optimization=true \
 	-Dcpu-baseline=min
+
+# FIXME: remove asap; added in 2.2.5
+TARGET_CFLAGS += \
+	-Wno-error=incompatible-pointer-types
 
 # Override 'Meson', to use numpy's vendored meson
 define Meson
@@ -75,7 +79,7 @@ define Package/python3-numpy
 	   +NUMPY_OPENBLAS_SUPPORT:openblas
 endef
 
-# We need to duplicate the omitted arhitectures same as openblas
+# We need to duplicate the omitted architectures same as openblas
 define Package/python3-numpy/config
 menu "Configuration"
 depends on !powerpc

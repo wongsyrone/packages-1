@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2015 OpenWrt.org
+# Copyright (C) 2006-2025 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,13 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ulogd
-PKG_VERSION:=2.0.8
-PKG_RELEASE:=1
+PKG_VERSION:=2.0.9
+PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=https://netfilter.org/projects/ulogd/files/ \
-	ftp://ftp.netfilter.org/pub/ulogd/
-PKG_HASH:=4ead6c3970c3f57fa1e89fe2d7cc483ba6fe2bd1b08701521e0b3afd667df291
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=https://netfilter.org/pub/ulogd/
+PKG_HASH:=523a651fe0a9f25b0cd87d5d35fc37d9382e7eecfcf61e48d5505ff3cf80eda5
 
 PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=GPL-2.0-only
@@ -36,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/ulogd/Default
   SECTION:=net
   CATEGORY:=Network
-  URL:=https://www.netfilter.org/projects/ulogd/index.html
+  URL:=https://netfilter.org/projects/ulogd/
 endef
 
 define Package/ulogd
@@ -127,32 +126,29 @@ CONFIGURE_ARGS += \
 	--enable-nfct \
 	--enable-nflog
 
-ifneq ($(DEVELOPER)$(SDK)$(CONFIG_PACKAGE_ulogd-mod-dbi),)
-	CONFIGURE_ARGS += --with-dbi \
-		--with-dbi-inc=$(STAGING_DIR)/usr/include/dbi \
-		--with-dbi-lib=$(STAGING_DIR)/usr/lib
+ifneq ($(DEVELOPER)$(CONFIG_PACKAGE_ulogd-mod-dbi),)
+	CONFIGURE_ARGS += --enable-dbi
 else
-	CONFIGURE_ARGS += --without-dbi
+	CONFIGURE_ARGS += --disable-dbi
 endif
 
-ifneq ($(DEVELOPER)$(SDK)$(CONFIG_PACKAGE_ulogd-mod-mysql),)
-	CONFIGURE_ARGS += \
-		--with-mysql-inc=$(STAGING_DIR)/usr/include/mysql \
-		--with-mysql-lib=$(STAGING_DIR)/usr/lib/mysql
+ifneq ($(DEVELOPER)$(CONFIG_PACKAGE_ulogd-mod-mysql),)
+	CONFIGURE_ARGS += --enable-mysql \
+					  --with-mysql-config=$(STAGING_DIR)/usr/bin/mysql_config
 else
-	CONFIGURE_ARGS += --without-mysql
+	CONFIGURE_ARGS += --disable-mysql
 endif
 
-ifneq ($(DEVELOPER)$(SDK)$(CONFIG_PACKAGE_ulogd-mod-pgsql),)
-	CONFIGURE_ARGS += --with-pgsql="$(STAGING_DIR)/usr"
+ifneq ($(DEVELOPER)$(CONFIG_PACKAGE_ulogd-mod-pgsql),)
+	CONFIGURE_ARGS += --enable-pgsql
 else
-	CONFIGURE_ARGS += --without-pgsql
+	CONFIGURE_ARGS += --disable-pgsql
 endif
 
-ifneq ($(SDK)$(CONFIG_PACKAGE_ulogd-mod-sqlite),)
-	CONFIGURE_ARGS += --with-sqlite="$(STAGING_DIR)/usr"
+ifneq ($(CONFIG_PACKAGE_ulogd-mod-sqlite),)
+	CONFIGURE_ARGS += --enable-sqlite3
 else
-	CONFIGURE_ARGS += --without-sqlite
+	CONFIGURE_ARGS += --disable-sqlite3
 endif
 
 define Package/ulogd/install

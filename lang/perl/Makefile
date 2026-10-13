@@ -11,7 +11,7 @@ include perlver.mk
 
 PKG_NAME:=perl
 PKG_VERSION:=$(PERL_VERSION)
-PKG_RELEASE:=2
+PKG_RELEASE:=7
 
 PKG_SOURCE_URL:=https://www.cpan.org/src/5.0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -59,9 +59,9 @@ define Package/perl
   SUBMENU:=Perl
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=The Perl intepreter
-  URL:=http://www.perl.com/
-  DEPENDS:=+USE_GLIBC:libbsd +PERL_THREADS:libpthread @!arc
+  TITLE:=The Perl interpreter
+  URL:=https://www.perl.org/
+  DEPENDS:= +USE_GLIBC:libcrypt-compat +USE_GLIBC:libbsd +PERL_THREADS:libpthread @!arc
 endef
 
 define Package/perl/description
@@ -92,6 +92,21 @@ endef
 
 # Target perl
 define Build/Configure
+	# We don't want to pass -Ilib to host perl in the target build (as lib
+	# contains the target libraries, and files may currently be written
+	# while being imported in parallel builds). We do however need the
+	# target versions of the Config modules at the beginning of the include
+	# path for the build scripts' use.
+	#
+	# Create an alternative lib_build directory that will be added to the
+	# include path instead of lib (using hostperl-wrapper), containing only
+	# the config modules.
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)/lib_build
+	ln -sf ../lib/Config.pm ../lib/Config_heavy.pl ../lib/Config_git.pl $(PKG_BUILD_DIR)/lib_build/
+
+	install -m0755 files/hostperl-wrapper $(PKG_BUILD_DIR)/hostperl-wrapper
+	sed -i "s'@HOST_PERL@'$(HOST_PERL_PREFIX)/bin/perl'g" $(PKG_BUILD_DIR)/hostperl-wrapper
+
 	$(PERL_CMD) files/perlconfig.pl -Dowrt:target_cc='$(TARGET_CC)' \
 	                                -Dowrt:gccversion=$(CONFIG_GCC_VERSION) \
 	                                -Dowrt:target_cross='$(TARGET_CROSS)' \
@@ -120,6 +135,8 @@ define Build/Compile
 	# make depend is required to avoid race conditions: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996953
 	+$(MAKE) -C $(PKG_BUILD_DIR) depend
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)
+	# miniperl may lack execute permission on some build systems, fix it for extension builds
+	chmod +x $(PKG_BUILD_DIR)/miniperl
 endef
 
 ifeq ($(CONFIG_arc),)
@@ -135,7 +152,7 @@ define Package/perl/install
 	ln -nsf perl$(PKG_VERSION) $(1)/usr/bin/perl
 	
 	$(INSTALL_DIR) $(1)/usr/lib/perl5/$(PERL_VERSION)/CORE
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/perl5/$(PERL_VERSION)/CORE/libperl.so $(1)/usr/lib/perl5/$(PERL_VERSION)/CORE/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/perl5/$(PERL_VERSION)/CORE/libperl.so $(1)/usr/lib/perl5/$(PERL_VERSION)/CORE/
 endef
 
 

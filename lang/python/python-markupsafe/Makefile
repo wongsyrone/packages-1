@@ -5,17 +5,24 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-markupsafe
-PKG_VERSION:=2.1.3
+PKG_VERSION:=3.0.4
 PKG_RELEASE:=1
 
 PYPI_NAME:=MarkupSafe
-PKG_HASH:=af598ed32d6ae86f1b747b82783958b1a4ab8f617b06fe68795c7f026abbdcad
+PYPI_SOURCE_NAME:=markupsafe
+PKG_HASH:=2e9ad7dd851bf45fab9f75cbff4cb493fee9979e8d8c7c9c3ee119022518edd6
 
-PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE.rst
 
-HOST_BUILD_DEPENDS:=python3/host python-build/host python-installer/host python-wheel/host
+PKG_BUILD_DEPENDS:=python3/host python-setuptools/host
+HOST_BUILD_DEPENDS:= \
+	python3/host \
+	python-setuptools/host \
+	python-build/host \
+	python-installer/host \
+	python-wheel/host
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk

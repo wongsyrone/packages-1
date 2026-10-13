@@ -9,14 +9,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lxc
-PKG_VERSION:=6.0.3
+PKG_VERSION:=7.0.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://linuxcontainers.org/downloads/lxc/
-PKG_HASH:=adac0837d2abfd2903916eaf56f60756f131327311f4f25ad917f6a71f73f98c
+PKG_HASH:=ba0c860626efbac6683f351dd718edb062065e919716d787b89e3d547c5d9493
 
-PKG_MAINTAINER:=Marko Ratkaj <markoratkaj@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=LGPL-2.1-or-later BSD-2-Clause GPL-2.0
 PKG_LICENSE_FILES:=COPYING LICENSE.GPL2 LICENSE.LGPL2.1
 PKG_CPE_ID:=cpe:/a:linuxcontainers:lxc
@@ -32,9 +32,11 @@ MESON_ARGS += \
 	-Dman=false \
 	-Dapparmor=false \
 	-Dselinux=false \
+	-Ddistrosysconfdir=/etc/default \
 	-Dseccomp=$(if $(CONFIG_LXC_SECCOMP),true,false) \
 	-Dexamples=false \
 	-Db_pie=true \
+	-Dmemfd-rexec=false \
 	-Druntime-path=/var/run
 
 LXC_APPLETS_BIN += \
@@ -50,7 +52,7 @@ LXC_SCRIPTS += \
 
 DEPENDS_APPLETS = +libpthread +libcap +liblxc
 
-DEPENDS_create = +lxc-configs +lxc-hooks +lxc-templates +flock +getopt
+DEPENDS_create = +lxc-configs +lxc-hooks +lxc-templates +flock +getopt +tar
 
 define Package/lxc/Default
   SECTION:=utils
@@ -101,6 +103,11 @@ endef
 define Package/lxc-unprivileged/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_DATA) ./files/lxc-unprivileged.defaults $(1)/etc/uci-defaults/lxc-unprivileged
+endef
+
+define Package/lxc-unprivileged/conffiles
+/etc/subgid
+/etc/subuid
 endef
 
 define Package/lxc/config

@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pciutils
-PKG_VERSION:=3.12.0
+PKG_VERSION:=3.14.0
 PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/utils/pciutils
-PKG_HASH:=f185d116d5ff99b797497efce8f19f1ee8ccc5a668b97a159e3d13472f674154
+PKG_HASH:=e7713409882813991d2269d125e40dad1f54a019a52b78b3962941c1d4a6f86f
 
 PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 PKG_LICENSE:=GPL-2.0
@@ -26,8 +26,9 @@ define Package/pciutils
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Linux PCI Utilities
-  URL:=http://mj.ucw.cz/pciutils.shtml
+  URL:=https://mj.ucw.cz/sw/pciutils/
   DEPENDS:=+libkmod +libpci +pciids
+  ALTERNATIVES:=200:/usr/bin/lspci:/usr/libexec/lspci-pciutils
 endef
 
 define Package/pciutils/description
@@ -39,7 +40,7 @@ define Package/libpci
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=Linux PCI Libraries
-  URL:=http://mj.ucw.cz/pciutils.shtml
+  URL:=https://mj.ucw.cz/sw/pciutils/
 endef
 
 TARGET_CFLAGS += $(FPIC)
@@ -71,8 +72,8 @@ define Build/InstallDev
 endef
 
 define Package/pciutils/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lspci $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/libexec
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lspci $(1)/usr/libexec/lspci-pciutils
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/setpci $(1)/usr/sbin/
 endef
 

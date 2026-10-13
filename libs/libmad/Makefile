@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libmad
 PKG_VERSION:=0.16.4
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)
@@ -31,7 +31,7 @@ define Package/libmad
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=An high-quality MPEG audio decoding library
-  URL:=http://www.underbit.com/products/mad/
+  URL:=https://codeberg.org/tenacityteam/libmad
 endef
 
 define Package/libmad/description

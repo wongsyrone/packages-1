@@ -5,12 +5,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=OpenBLAS
-PKG_VERSION:=0.3.28
+PKG_VERSION:=0.3.34
 PKG_RELEASE:=1
 
 PKG_SOURCE:=OpenBLAS-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/OpenMathLib/OpenBLAS/releases/download/v$(PKG_VERSION)/
-PKG_HASH:=f1003466ad074e9b0c8d421a204121100b0751c96fc6fcf3d1456bd12f8a00a1
+PKG_HASH:=cd7e129868320cc2d033afa920e31202dfe0b8066a5b66661900ccc0f197dfed
 PKG_LICENSE:=BSD-3-Clause
 PKG_CPE_ID:=cpe:/a:openblas_project:openblas
 PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>

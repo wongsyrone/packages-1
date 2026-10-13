@@ -74,10 +74,10 @@ HOST_PYTHON3_VARS = \
 	CCSHARED="$(HOSTCC) $(HOST_FPIC)" \
 	CXX="$(HOSTCXX)" \
 	LD="$(HOSTCC)" \
-	LDSHARED="$(HOSTCC) -shared" \
+	LDSHARED="$(HOSTCC) $(if $(findstring Darwin,$(HOST_OS)),-bundle -undefined dynamic_lookup,-shared)" \
 	CFLAGS="$(HOST_CFLAGS)" \
 	CPPFLAGS="$(HOST_CPPFLAGS) -I$(HOST_PYTHON3_INC_DIR)" \
-	LDFLAGS="$(HOST_LDFLAGS) -lpython$(PYTHON3_VERSION)" \
+	LDFLAGS="$(HOST_LDFLAGS)$(if $(findstring Darwin,$(HOST_OS)),, -lpython$(PYTHON3_VERSION))" \
 	$(CARGO_HOST_CONFIG_VARS) \
 	SETUPTOOLS_RUST_CARGO_PROFILE="$(CARGO_HOST_PROFILE)"
 
@@ -109,7 +109,7 @@ define HostPython3/PipInstall
 		$(HOST_PYTHON3_PIP_VARS) \
 		$(HOST_PYTHON3_PIP) \
 			install \
-			--no-binary :all: \
+			$(if $(findstring Darwin,$(HOST_OS)),,--no-binary :all:) \
 			--progress-bar off \
 			--require-hashes \
 			$(1) \

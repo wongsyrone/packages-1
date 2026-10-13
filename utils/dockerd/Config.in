@@ -15,7 +15,6 @@ config DOCKER_CGROUP_OPTIONS
 	select KERNEL_CGROUP_FREEZER
 	select KERNEL_NET_CLS_CGROUP
 	select KERNEL_CGROUP_NET_PRIO
-	select PACKAGE_cgroupfs-mount
 	help
 		Selects kernel options to enable CGroups V1.
 
@@ -62,7 +61,7 @@ menu "Network"
 		bool "Includes ftp/tftp client kernel modules"
 		default n
 		select PACKAGE_kmod-nf-nathelper
-		select PACKAGE_kmod-nf-nathelper-extra
+		select PACKAGE_kmod-nf-nathelper-tftp
 endmenu
 
 menu "Storage"

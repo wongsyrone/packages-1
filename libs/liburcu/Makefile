@@ -9,16 +9,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=liburcu
-PKG_VERSION:=0.15.0
+PKG_VERSION:=0.15.6
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Daniel Salzman <daniel.salzman@nic.cz>
-PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later MIT
-PKG_LICENSE_FILES:=lgpl-2.1.txt gpl-2.0.txt lgpl-relicensing.txt
+PKG_LICENSE:=LGPL-2.1-only LGPL-2.1-or-later GPL-2.0-or-later-with-Autoconf-exception-2.0 \
+             GPL-2.0-or-later-with-LicenseRef-Autoconf-exception-macro MIT FSFAP LicenseRef-Boehm-GC
+PKG_LICENSE_FILES:=LICENSES/LGPL-2.1-only.txt LICENSES/LGPL-2.1-or-later.txt LICENSES/GPL-2.0-or-later.txt \
+                   LICENSES/Autoconf-exception-2.0.txt LICENSES/LicenseRef-Autoconf-exception-macro.txt \
+                   LICENSES/MIT.txt LICENSES/FSFAP.txt LICENSES/LicenseRef-Boehm-GC.txt lgpl-relicensing.md LICENSE.md
 
 PKG_SOURCE:=userspace-rcu-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://lttng.org/files/urcu/
-PKG_HASH:=4f2d839af67905ad396d6d53ba5649b66113d90840dcbc89941e0da64bccd38c
+PKG_HASH:=850b192096eb11ebf2c70e8f97bc7da7479ee41da1bebeb44e3986908bac414f
 PKG_BUILD_DIR:=$(BUILD_DIR)/userspace-rcu-$(PKG_VERSION)
 
 PKG_FIXUP:=autoreconf

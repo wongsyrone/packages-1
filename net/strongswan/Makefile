@@ -8,26 +8,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
-PKG_VERSION:=5.9.14
-PKG_RELEASE:=5
+PKG_VERSION:=6.0.7
+PKG_RELEASE:=9
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.strongswan.org/ https://download2.strongswan.org/
-PKG_HASH:=728027ddda4cb34c67c4cec97d3ddb8c274edfbabdaeecf7e74693b54fc33678
-PKG_LICENSE:=GPL-2.0-or-later
+PKG_HASH:=e518e34e159514f4c6ba80d1f926cb151e0dd4e3a1d94213171234b8b9ae6f55
+
 PKG_MAINTAINER:=Philip Prindeville <philipp@redfish-solutions.com>, Noel Kuntze <noel.kuntze@thermi.consulting>
+PKG_LICENSE:=GPL-2.0-or-later
+PKG_LICENSE_FILES:=COPYING LICENSE
 PKG_CPE_ID:=cpe:/a:strongswan:strongswan
 
 PKG_MOD_AVAILABLE:= \
 	addrblock \
 	aes \
-	af-alg \
 	agent \
 	attr \
 	attr-sql \
-	bliss \
 	blowfish \
-	ccm \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),ccm,) \
 	chapoly \
 	cmac \
 	constraints \
@@ -44,7 +44,7 @@ PKG_MOD_AVAILABLE:= \
 	eap-dynamic \
 	eap-identity \
 	eap-md5 \
-	eap-mschapv2 \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),eap-mschapv2,) \
 	eap-radius \
 	eap-tls \
 	farp \
@@ -62,12 +62,11 @@ PKG_MOD_AVAILABLE:= \
 	ldap \
 	led \
 	load-tester \
-	md4 \
+	lookip \
+	$(if $(CONFIG_STRONGSWAN_INCLUDE_INSECURE),md4,) \
 	md5 \
 	mgf1 \
 	mysql \
-	newhope \
-	ntru \
 	openssl \
 	pem \
 	pgp \
@@ -93,7 +92,6 @@ PKG_MOD_AVAILABLE:= \
 	stroke \
 	test-vectors \
 	unity \
-	uci \
 	updown \
 	vici \
 	whitelist \
@@ -106,11 +104,13 @@ PKG_MOD_AVAILABLE:= \
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_STRONGSWAN_ROUTING_TABLE \
 	CONFIG_STRONGSWAN_ROUTING_TABLE_PRIO \
-	$(patsubst %,CONFIG_PACKAGE_strongswan-mod-%,$(PKG_MOD_AVAILABLE)) \
+	CONFIG_STRONGSWAN_INCLUDE_INSECURE \
+	$(patsubst %,CONFIG_PACKAGE_strongswan-mod-%,$(PKG_MOD_AVAILABLE))
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+PKG_BUILD_DEPENDS:=python3/host
 
 include $(INCLUDE_DIR)/package.mk
 # strongswan-mod-mysql needs iconv
@@ -121,7 +121,7 @@ define Package/strongswan/Default
   SECTION:=net
   CATEGORY:=Network
   TITLE:=StrongSwan
-  URL:=http://www.strongswan.org/
+  URL:=https://strongswan.org/
 endef
 
 define Package/strongswan/description/Default
@@ -132,16 +132,6 @@ define Package/strongswan
 $(call Package/strongswan/Default)
   MENU:=1
   DEPENDS:= +libpthread +ip \
-	+kmod-crypto-aead \
-	+kmod-crypto-authenc \
-	+kmod-crypto-cbc \
-	+kmod-lib-zlib-inflate \
-	+kmod-lib-zlib-deflate \
-	+kmod-crypto-des \
-	+kmod-crypto-echainiv \
-	+kmod-crypto-hmac \
-	+kmod-crypto-md5 \
-	+kmod-crypto-sha1 \
 	+kmod-ipsec +kmod-ipsec4 +IPV6:kmod-ipsec6
 endef
 
@@ -161,16 +151,13 @@ $(call Package/strongswan/Default)
 	+strongswan-charon \
 	+strongswan-charon-cmd \
 	+strongswan-ipsec \
-	+strongswan-libnttfft \
 	+strongswan-mod-addrblock \
 	+strongswan-mod-aes \
-	+strongswan-mod-af-alg \
 	+strongswan-mod-agent \
 	+strongswan-mod-attr \
 	+strongswan-mod-attr-sql \
-	+strongswan-mod-bliss \
 	+strongswan-mod-blowfish \
-	+strongswan-mod-ccm \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-ccm \
 	+strongswan-mod-chapoly \
 	+strongswan-mod-cmac \
 	+strongswan-mod-constraints \
@@ -187,7 +174,7 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-eap-dynamic \
 	+strongswan-mod-eap-identity \
 	+strongswan-mod-eap-md5 \
-	+strongswan-mod-eap-mschapv2 \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-eap-mschapv2 \
 	+strongswan-mod-eap-radius \
 	+strongswan-mod-eap-tls \
 	+strongswan-mod-farp \
@@ -203,12 +190,11 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-ldap \
 	+strongswan-mod-led \
 	+strongswan-mod-load-tester \
-	+strongswan-mod-md4 \
+	+strongswan-mod-lookip \
+	+STRONGSWAN_INCLUDE_INSECURE:strongswan-mod-md4 \
 	+strongswan-mod-md5 \
 	+strongswan-mod-mgf1 \
 	+strongswan-mod-mysql \
-	+strongswan-mod-newhope \
-	+strongswan-mod-ntru \
 	+strongswan-mod-openssl \
 	+strongswan-mod-pem \
 	+strongswan-mod-pgp \
@@ -232,7 +218,6 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-sshkey \
 	+strongswan-mod-stroke \
 	+strongswan-mod-test-vectors \
-	+strongswan-mod-uci \
 	+strongswan-mod-unity \
 	+strongswan-mod-updown \
 	+strongswan-mod-vici \
@@ -318,7 +303,6 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-sha1 \
 	+strongswan-mod-socket-default \
 	+strongswan-mod-stroke \
-	+strongswan-mod-uci \
 	+strongswan-mod-updown
 endef
 
@@ -389,17 +373,6 @@ $(call Package/strongswan/description/Default)
  This package contains the ipsec utility.
 endef
 
-define Package/strongswan-libnttfft
-$(call Package/strongswan/Default)
-  TITLE+= nttfft library
-  DEPENDS:= strongswan
-endef
-
-define Package/strongswan-libnttfft/description
-$(call Package/strongswan/description/Default)
- This package contains the Number Theoretic Transforms library.
-endef
-
 define Package/strongswan-pki
 $(call Package/strongswan/Default)
   TITLE+= PKI tool
@@ -462,6 +435,10 @@ define BuildPlugin
 	$(call Plugin/$(1)/install,$$(1))
   endef
 
+  define Package/strongswan-mod-$(1)/conffiles
+/etc/strongswan.d/charon/$(1).conf
+endef
+
   $$(eval $$(call BuildPackage,strongswan-mod-$(1)))
 endef
 
@@ -473,13 +450,16 @@ CONFIGURE_ARGS+= \
 	--enable-mgf1 \
 	--enable-mediation \
 	--with-systemdsystemunitdir=no \
+	--with-plugins-packaged-separately=yes \
+	PYTHON="python3" \
 	$(if $(CONFIG_PACKAGE_strongswan-charon-cmd),--enable-cmd,--disable-cmd) \
+	$(if $(CONFIG_PACKAGE_strongswan-mod-gmpdh),--enable-gmpdh,) \
 	$(if $(CONFIG_PACKAGE_strongswan-pki),--enable-pki,--disable-pki) \
 	--with-random-device=/dev/random \
 	--with-urandom-device=/dev/urandom \
 	--with-routing-table="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE))" \
 	--with-routing-table-prio="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE_PRIO))" \
-	$(foreach m,$(PKG_MOD_AVAILABLE), \
+	$(foreach m,$(PKG_MOD_AVAILABLE) ccm eap-mschapv2 md4, \
 	  $(if $(CONFIG_PACKAGE_strongswan-mod-$(m)),--enable-$(m),--disable-$(m)) \
 	) \
 	ac_cv_search___atomic_load=no
@@ -525,6 +505,11 @@ define Package/strongswan-charon/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libcharon.so.* $(1)/usr/lib/ipsec/
 endef
 
+define Package/strongswan-charon/conffiles
+/etc/strongswan.d/charon.conf
+/etc/strongswan.d/charon-logging.conf
+endef
+
 define Package/strongswan-charon-cmd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/charon-cmd $(1)/usr/sbin/
@@ -559,11 +544,6 @@ opkg list-changed-conffiles | grep -qx /etc/ipsec.conf || {
 }
 endef
 
-define Package/strongswan-libnttfft/install
-	$(INSTALL_DIR) $(1)/usr/lib/ipsec
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libnttfft.so.* $(1)/usr/lib/ipsec/
-endef
-
 define Package/strongswan-pki/install
 	$(INSTALL_DIR) $(1)/etc/strongswan.d
 	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/pki.conf $(1)/etc/strongswan.d/
@@ -578,7 +558,7 @@ endef
 
 define Package/strongswan-swanctl/install
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/etc/swanctl/{bliss,conf.d,ecdsa,pkcs{12,8},private,pubkey,rsa}
+	$(INSTALL_DIR) $(1)/etc/swanctl/{conf.d,ecdsa,pkcs{12,8},private,pubkey,rsa}
 	$(INSTALL_DIR) $(1)/etc/swanctl/x509{,aa,ac,ca,crl,ocsp}
 	$(CP) $(PKG_INSTALL_DIR)/etc/swanctl/swanctl.conf $(1)/etc/swanctl/
 	echo "include /var/swanctl/swanctl.conf" >> $(1)/etc/swanctl/swanctl.conf
@@ -587,6 +567,10 @@ define Package/strongswan-swanctl/install
 	$(INSTALL_BIN) ./files/swanctl.init $(1)/etc/init.d/swanctl
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/ipsec.config $(1)/etc/config/ipsec
+
+	$(INSTALL_DIR) $(1)/usr/libexec/strongswan/
+	$(INSTALL_BIN) ./files/usr/libexec/strongswan/migrate-ipsec-to-swanctl \
+		$(1)/usr/libexec/strongswan/
 endef
 
 define Package/strongswan-gencerts/install
@@ -658,18 +642,15 @@ $(eval $(call BuildPackage,strongswan-isakmp))
 $(eval $(call BuildPackage,strongswan-charon))
 $(eval $(call BuildPackage,strongswan-charon-cmd))
 $(eval $(call BuildPackage,strongswan-ipsec))
-$(eval $(call BuildPackage,strongswan-libnttfft))
 $(eval $(call BuildPackage,strongswan-pki))
 $(eval $(call BuildPackage,strongswan-swanctl))
 $(eval $(call BuildPackage,strongswan-gencerts))
 $(eval $(call BuildPackage,strongswan-libtls))
 $(eval $(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))
 $(eval $(call BuildPlugin,aes,AES crypto,))
-$(eval $(call BuildPlugin,af-alg,AF_ALG crypto interface to Linux Crypto API,+kmod-crypto-user))
 $(eval $(call BuildPlugin,agent,SSH agent signing,))
 $(eval $(call BuildPlugin,attr,file based config,))
 $(eval $(call BuildPlugin,attr-sql,SQL based config,+strongswan-charon))
-$(eval $(call BuildPlugin,bliss,BLISS crypto,+strongswan-libnttfft +strongswan-mod-mgf1 +strongswan-mod-hmac))
 $(eval $(call BuildPlugin,blowfish,Blowfish crypto,))
 $(eval $(call BuildPlugin,ccm,CCM AEAD wrapper crypto,))
 $(eval $(call BuildPlugin,chapoly,ChaCha20-Poly1305 AEAD crypto,+kmod-crypto-chacha20poly1305))
@@ -706,12 +687,11 @@ $(eval $(call BuildPlugin,kernel-netlink,netlink kernel interface,))
 $(eval $(call BuildPlugin,ldap,LDAP,+PACKAGE_strongswan-mod-ldap:libopenldap))
 $(eval $(call BuildPlugin,led,LED blink on IKE activity,))
 $(eval $(call BuildPlugin,load-tester,load testing,))
+$(eval $(call BuildPlugin,lookip,enable fast virtual IP lookup and notification,))
 $(eval $(call BuildPlugin,md4,MD4 crypto,))
 $(eval $(call BuildPlugin,md5,MD5 crypto,))
 $(eval $(call BuildPlugin,mgf1,MGF1 crypto,))
 $(eval $(call BuildPlugin,mysql,MySQL database interface,+strongswan-mod-sql +PACKAGE_strongswan-mod-mysql:libmysqlclient-r))
-$(eval $(call BuildPlugin,newhope,New Hope crypto,+strongswan-libnttfft +strongswan-mod-chapoly +strongswan-mod-sha3))
-$(eval $(call BuildPlugin,ntru,NTRU crypto,+strongswan-mod-mgf1))
 $(eval $(call BuildPlugin,openssl,OpenSSL crypto,+PACKAGE_strongswan-mod-openssl:libopenssl))
 $(eval $(call BuildPlugin,pem,PEM decoding,))
 $(eval $(call BuildPlugin,pgp,PGP key decoding,))
@@ -736,7 +716,6 @@ $(eval $(call BuildPlugin,sqlite,SQLite database interface,+strongswan-mod-sql +
 $(eval $(call BuildPlugin,sshkey,SSH key decoding,))
 $(eval $(call BuildPlugin,stroke,Stroke,+strongswan-charon +strongswan-ipsec))
 $(eval $(call BuildPlugin,test-vectors,crypto test vectors,))
-$(eval $(call BuildPlugin,uci,UCI config interface,+PACKAGE_strongswan-mod-uci:libuci))
 $(eval $(call BuildPlugin,unity,Cisco Unity extension,))
 $(eval $(call BuildPlugin,updown,updown firewall,+iptables +IPV6:ip6tables +iptables-mod-ipsec +kmod-ipt-ipsec))
 $(eval $(call BuildPlugin,vici,Versatile IKE Configuration Interface,))
