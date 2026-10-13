@@ -12,7 +12,7 @@
  #endif
  
  #ifdef ZT_USE_SYSTEM_NATPMP
-@@ -208,7 +210,34 @@ public:
+@@ -203,7 +205,34 @@ class PortMapperImpl {
  				struct IGDdatas data;
  
  				int upnpError = 0;
@@ -46,5 +46,5 @@
 +					}
 +				}
  				if (devlist) {
- 
  #ifdef ZT_PORTMAPPER_TRACE
+ 					{

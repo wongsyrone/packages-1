@@ -1,6 +1,6 @@
---- a/one.cpp	2026-05-28 02:42:28.000000000 +0800
-+++ b/a/one.cpp	2026-10-13 11:09:11.224606265 +0800
-@@ -143,6 +143,8 @@
+--- a/one.cpp
++++ b/one.cpp
+@@ -143,6 +143,8 @@ static void cliPrintHelp(const char* pn,
  	fprintf(out, "  set <network ID> <setting> - Set a network setting" ZT_EOL_S);
  	fprintf(out, "  get <network ID> <setting> - Get a network setting" ZT_EOL_S);
  	fprintf(out, "  dump                    - Debug settings dump for support" ZT_EOL_S);
@@ -9,7 +9,7 @@
  	fprintf(out, ZT_EOL_S "Available settings:" ZT_EOL_S);
  	fprintf(out, "  Settings to use with [get/set] may include property names from " ZT_EOL_S);
  	fprintf(out, "  the JSON output of \"zerotier-cli -j listnetworks\". Additionally, " ZT_EOL_S);
-@@ -872,6 +874,37 @@
+@@ -872,6 +874,37 @@ static int cli(int argc, char** argv)
  			}
  			return 0;
  		}
@@ -47,9 +47,9 @@
  		else {
  			printf("%u %s %s" ZT_EOL_S, scode, command.c_str(), responseBody.c_str());
  			return 1;
---- a/service/OneService.cpp	2026-10-13 11:08:00.621180876 +0800
-+++ b/a/service/OneService.cpp	2026-10-13 11:09:11.226145674 +0800
-@@ -1755,6 +1755,7 @@
+--- a/service/OneService.cpp
++++ b/service/OneService.cpp
+@@ -1755,6 +1755,7 @@ class OneServiceImpl : public OneService
  		std::string moonPath = "/moon/([0-9a-fA-F]{10})";
  		std::string networkListPath = "/network";
  		std::string networkPath = "/network/([0-9a-fA-F]{16})";
@@ -57,7 +57,7 @@
  		std::string peerListPath = "/peer";
  		std::string peerPath = "/peer/([0-9a-fA-F]{10})";
  		std::string statusPath = "/status";
-@@ -2358,6 +2359,27 @@
+@@ -2358,6 +2359,27 @@ class OneServiceImpl : public OneService
  		_controlPlaneV6.Post(networkPath, networkPost);
  		_controlPlaneV6.Put(networkPath, networkPost);
  
